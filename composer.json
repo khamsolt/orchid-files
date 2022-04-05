@@ -1,17 +1,17 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "khamsolt/orchid-files",
+    "description": "This is my package orchid-files",
     "keywords": [
-        ":vendor_name",
+        "khamsolt",
         "laravel",
-        ":package_slug"
+        "orchid-files"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/khamsolt/orchid-files",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Mohammad Khamidov",
+            "email": "khamidov.che@gmail.com",
             "role": "Developer"
         }
     ],
@@ -34,13 +34,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories"
+            "Khamsolt\\Orchid\\Files\\": "src",
+            "Khamsolt\\Orchid\\Files\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests"
+            "Khamsolt\\Orchid\\Files\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -54,10 +54,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Khamsolt\\Orchid\\Files\\FileServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "OrchidFiles": "Khamsolt\\Orchid\\Files\\Facades\\Files"
             }
         }
     },
