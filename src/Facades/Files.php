@@ -3,14 +3,16 @@
 namespace Khamsolt\Orchid\Files\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Khamsolt\Orchid\Files\FileManager;
+use Khamsolt\Orchid\Files\FileService;
 
 /**
- * @see \Khamsolt\OrchidFiles\OrchidFiles
+ * @see \Khamsolt\Orchid\Files\FileManager
  */
 class Files extends Facade
 {
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
-        return 'orchid-files';
+        return FileService::class;
     }
 }
