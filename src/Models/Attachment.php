@@ -7,7 +7,8 @@ use Orchid\Screen\AsSource;
 
 class Attachment extends \Orchid\Attachment\Models\Attachment
 {
-    use AsSource, Chartable;
+    use AsSource;
+    use Chartable;
 
     public const GROUP_THUMBNAIL = 'thumbnail';
 
@@ -22,7 +23,7 @@ class Attachment extends \Orchid\Attachment\Models\Attachment
         'sort',
         'group',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $allowedSorts = [
@@ -36,7 +37,7 @@ class Attachment extends \Orchid\Attachment\Models\Attachment
         'sort',
         'group',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     public function sizeToKb(): float

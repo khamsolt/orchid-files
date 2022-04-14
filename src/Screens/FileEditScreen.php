@@ -2,14 +2,14 @@
 
 namespace Khamsolt\Orchid\Files\Screens;
 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Khamsolt\Orchid\Files\Authorization\Permissions;
 use Khamsolt\Orchid\Files\Contracts\Updatable;
 use Khamsolt\Orchid\Files\Data\Transfer\AttachmentObject;
 use Khamsolt\Orchid\Files\Http\Requests\UpdateRequest;
-use Khamsolt\Orchid\Files\Models\Attachment;
 use Khamsolt\Orchid\Files\Layouts\FileEditLayout;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Redirector;
+use Khamsolt\Orchid\Files\Models\Attachment;
 use Orchid\Alert\Toast;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\LayoutFactory;
@@ -30,8 +30,8 @@ class FileEditScreen extends Screen
     {
         $this->layoutFactory = $layoutFactory;
         $this->updateService = $updateService;
-        $this->redirector    = $redirector;
-        $this->toast         = $toast;
+        $this->redirector = $redirector;
+        $this->toast = $toast;
 
         $this->permission = Permissions::accessFileUpdates();
     }
@@ -39,7 +39,7 @@ class FileEditScreen extends Screen
     public function query(Attachment $attachment): iterable
     {
         return [
-            'attachment' => $attachment
+            'attachment' => $attachment,
         ];
     }
 
@@ -62,7 +62,7 @@ class FileEditScreen extends Screen
     {
         return [
             $this->layoutFactory->block([
-                FileEditLayout::class
+                FileEditLayout::class,
             ])
                 ->title('File Information')
                 ->description('Basic information about the file')
@@ -71,8 +71,8 @@ class FileEditScreen extends Screen
                         ->type(Color::DEFAULT())
                         ->icon('pencil')
                         ->name('Update')
-                        ->method('update')
-                ])
+                        ->method('update'),
+                ]),
         ];
     }
 

@@ -2,9 +2,9 @@
 
 namespace Khamsolt\Orchid\Files;
 
+use Illuminate\Pagination\LengthAwarePaginator;
 use Khamsolt\Orchid\Files\Contracts\Searchable;
 use Khamsolt\Orchid\Files\Models\Attachment;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class SearchService implements Searchable
 {

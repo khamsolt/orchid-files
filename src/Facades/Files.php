@@ -3,7 +3,6 @@
 namespace Khamsolt\Orchid\Files\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use Khamsolt\Orchid\Files\FileManager;
 use Khamsolt\Orchid\Files\FileService;
 
 /**

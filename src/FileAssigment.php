@@ -21,9 +21,9 @@ class FileAssigment implements Assignable
 
     public function __construct(Storage $storage, Redirector $redirector, Repository $config)
     {
-        $this->storage    = $storage;
+        $this->storage = $storage;
         $this->redirector = $redirector;
-        $this->config     = $config;
+        $this->config = $config;
     }
 
     public function putWithRedirect(AssignmentObject $attachmentableObject): RedirectResponse
@@ -32,7 +32,8 @@ class FileAssigment implements Assignable
 
         $redirect = $this->redirector->route($route, ['mode' => 'radio']);
 
-        $this->storage->forget(static::KEY_FILE_ASSIGNMENT);;
+        $this->storage->forget(static::KEY_FILE_ASSIGNMENT);
+        ;
 
         $this->storage->put(static::KEY_FILE_ASSIGNMENT, $attachmentableObject);
 

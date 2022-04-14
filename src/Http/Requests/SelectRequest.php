@@ -16,7 +16,7 @@ class SelectRequest extends FormRequest
     {
         return [
             'files' => ['required', 'array', 'filled'],
-            'files.' => ['required', 'numeric', 'min:0']
+            'files.' => ['required', 'numeric', 'min:0'],
         ];
     }
 

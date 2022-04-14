@@ -24,7 +24,8 @@ class FileServiceProvider extends ServiceProvider
             ->registerProviders();
 
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/orchid-files.php', 'orchid-files'
+            __DIR__ . '/../config/orchid-files.php',
+            'orchid-files'
         );
     }
 
@@ -47,7 +48,7 @@ class FileServiceProvider extends ServiceProvider
     protected function registerDatabase(): self
     {
         $this->publishes([
-            __DIR__ . '/../database/migrations' => database_path('migrations')
+            __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'orchid-files');
 
         return $this;
@@ -61,7 +62,7 @@ class FileServiceProvider extends ServiceProvider
 
         $this->loadViewComponentsAs('orchid-files', [
             Preview::class,
-            Thumbnail::class
+            Thumbnail::class,
         ]);
 
         $this->publishes([
@@ -98,7 +99,7 @@ class FileServiceProvider extends ServiceProvider
     public function provides(): array
     {
         return [
-            AuthServiceProvider::class
+            AuthServiceProvider::class,
         ];
     }
 }

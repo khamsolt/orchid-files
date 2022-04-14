@@ -3,8 +3,8 @@
 namespace Khamsolt\Orchid\Files\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Khamsolt\Orchid\Files\FileServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {

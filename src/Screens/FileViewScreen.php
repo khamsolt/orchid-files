@@ -56,8 +56,8 @@ class FileViewScreen extends Screen
 
         return [
             'attachment' => $attachment,
-            'alt'        => $attachment->alt ?? $attachment->original_name,
-            'url'        => $this->url
+            'alt' => $attachment->alt ?? $attachment->original_name,
+            'url' => $this->url,
         ];
     }
 
@@ -88,13 +88,13 @@ class FileViewScreen extends Screen
             $this->layoutFactory->legend('attachment', [
                 Sight::make('id', __('#ID')),
                 Sight::make('user_id', __('User'))
-                    ->render(fn(Attachment $attachment) => (string)(new Persona($attachment->user->presenter()))),
+                    ->render(fn (Attachment $attachment) => (string)(new Persona($attachment->user->presenter()))),
                 Sight::make('name', __('Name')),
                 Sight::make('original_name', __('Title')),
                 Sight::make('mime', __('Mime')),
                 Sight::make('extension', __('Extension')),
                 Sight::make('size', __('Size'))
-                    ->render(fn(Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
+                    ->render(fn (Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
                 Sight::make('sort', __('Sort')),
                 Sight::make('path', __('Path')),
                 Sight::make('description', __('Description')),
@@ -103,9 +103,9 @@ class FileViewScreen extends Screen
                 Sight::make('disk', __('Disk')),
                 Sight::make('group', __('Group')),
                 Sight::make('created_at', __('Created'))
-                    ->render(fn(Attachment $attachment) => (string)$attachment->created_at?->toDateTimeString()),
+                    ->render(fn (Attachment $attachment) => (string)$attachment->created_at?->toDateTimeString()),
                 Sight::make('updated_at', __('Updated'))
-                    ->render(fn(Attachment $attachment) => (string)$attachment->updated_at?->toDateTimeString()),
+                    ->render(fn (Attachment $attachment) => (string)$attachment->updated_at?->toDateTimeString()),
             ]),
         ];
     }

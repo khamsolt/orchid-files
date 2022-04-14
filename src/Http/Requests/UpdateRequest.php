@@ -14,12 +14,12 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attachment.user_id'       => ['required', 'numeric', 'exists:users,id'],
+            'attachment.user_id' => ['required', 'numeric', 'exists:users,id'],
             'attachment.original_name' => ['required', 'string', 'max:255'],
-            'attachment.sort'          => ['numeric', 'nullable'],
-            'attachment.description'   => ['string', 'nullable'],
-            'attachment.alt'           => ['string', 'nullable'],
-            'attachment.group'         => ['string', 'nullable'],
+            'attachment.sort' => ['numeric', 'nullable'],
+            'attachment.description' => ['string', 'nullable'],
+            'attachment.alt' => ['string', 'nullable'],
+            'attachment.group' => ['string', 'nullable'],
         ];
     }
 }

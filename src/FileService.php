@@ -45,7 +45,7 @@ class FileService implements Updatable, Attachable
 
     public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool
     {
-        $data = (new Collection($attachments))->map(fn(int|string $attachmentId) => is_int($attachmentId) ? [
+        $data = (new Collection($attachments))->map(fn (int|string $attachmentId) => is_int($attachmentId) ? [
             'attachmentable_type' => $type,
             'attachmentable_id' => $id,
             'attachment_id' => $attachmentId,

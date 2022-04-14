@@ -3,14 +3,13 @@
 namespace Khamsolt\Orchid\Files\Screens;
 
 use App\Models\User;
-use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Khamsolt\Orchid\Files\Authorization\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Assignable;
 use Khamsolt\Orchid\Files\Contracts\Attachable;
 use Khamsolt\Orchid\Files\Contracts\Searchable;
-use Khamsolt\Orchid\Files\Contracts\Assignable;
 use Khamsolt\Orchid\Files\Exceptions\AttachedFileException;
 use Khamsolt\Orchid\Files\Http\Requests\SelectRequest;
 use Khamsolt\Orchid\Files\Layouts\FileListLayout;
@@ -37,12 +36,14 @@ class FileListScreen extends Screen
 
     private Toast $toast;
 
-    public function __construct(LayoutFactory $layoutFactory,
-                                Searchable    $searchService,
-                                Attachable    $attachService,
-                                Assignable    $selectManager,
-                                Redirector    $redirector,
-                                Toast         $toast)
+    public function __construct(
+        LayoutFactory $layoutFactory,
+        Searchable    $searchService,
+        Attachable    $attachService,
+        Assignable    $selectManager,
+        Redirector    $redirector,
+        Toast         $toast
+    )
     {
         $this->layoutFactory = $layoutFactory;
         $this->searchService = $searchService;
@@ -52,10 +53,9 @@ class FileListScreen extends Screen
         $this->toast = $toast;
 
         $this->permission = [
-            Permissions::accessFileList()
+            Permissions::accessFileList(),
         ];
     }
-
 
     public function query(Request $request): iterable
     {
@@ -64,9 +64,9 @@ class FileListScreen extends Screen
         $files = $this->searchService->paginate();
 
         return [
-            'files'  => $files,
-            'mode'   => $request->get('mode'),
-            'user'   => $this->user,
+            'files' => $files,
+            'mode' => $request->get('mode'),
+            'user' => $this->user,
         ];
     }
 
@@ -92,7 +92,7 @@ class FileListScreen extends Screen
                 ->type(Color::DEFAULT())
                 ->icon('check')
                 ->method('attach')
-                ->canSee($this->selectManager->has())
+                ->canSee($this->selectManager->has()),
         ];
     }
 
@@ -100,12 +100,12 @@ class FileListScreen extends Screen
     {
         return [
             $this->layoutFactory->rows([
-                Upload::make('files_with_catalog')->title('Upload With Catalog')
+                Upload::make('files_with_catalog')->title('Upload With Catalog'),
             ])->canSee($this->user->hasAccess(Permissions::accessFileUploads())),
 
             $this->layoutFactory->blank([
-                FileListLayout::class
-            ])
+                FileListLayout::class,
+            ]),
         ];
     }
 
@@ -122,8 +122,6 @@ class FileListScreen extends Screen
 
             return $this->redirector->to($dto->redirect);
         } catch (AttachedFileException $exception) {
-
-
             $this->toast->error(__('Attempting to attach a file failed, contact the administrator'));
         }
 
