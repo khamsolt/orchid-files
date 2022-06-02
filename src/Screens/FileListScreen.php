@@ -34,8 +34,7 @@ class FileListScreen extends Screen
         private readonly Assignable    $selectManager,
         private readonly Redirector    $redirector,
         private readonly Toast         $toast
-    )
-    {
+    ) {
     }
 
     public function query(Request $request): iterable
@@ -47,11 +46,11 @@ class FileListScreen extends Screen
         $files = $this->searchService->paginate();
 
         return [
-            'files'       => $files,
-            'mode'        => $mode,
-            'user'        => $user,
-            'config'      => $this->config,
-            'permissible' => $this->permissible
+            'files' => $files,
+            'mode' => $mode,
+            'user' => $user,
+            'config' => $this->config,
+            'permissible' => $this->permissible,
         ];
     }
 

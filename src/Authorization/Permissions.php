@@ -10,8 +10,10 @@ use Orchid\Platform\ItemPermission;
 
 class Permissions implements Permissible
 {
-    public function __construct(private readonly Repository $config,
-                                private readonly Translator $translator)
+    public function __construct(
+        private readonly Repository $config,
+        private readonly Translator $translator
+    )
     {
     }
 

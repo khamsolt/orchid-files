@@ -4,7 +4,6 @@ namespace Khamsolt\Orchid\Files\Layouts;
 
 use App\Models\User;
 use Illuminate\Contracts\Config\Repository;
-use Khamsolt\Orchid\Files\Authorization\Permissions;
 use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
 use Khamsolt\Orchid\Files\Models\Attachment;
 use Khamsolt\Orchid\Files\View\Components\Thumbnail;
@@ -157,7 +156,7 @@ class FileListLayout extends Table
 
     protected function checkbox(): TD
     {
-        return TD::make()->render(fn(Attachment $attachment) => CheckBox::make('files[]')
+        return TD::make()->render(fn (Attachment $attachment) => CheckBox::make('files[]')
             ->value($attachment->id)
             ->checked(false));
     }

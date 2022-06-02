@@ -67,7 +67,7 @@ class FileServiceProvider extends ServiceProvider
     protected function registerCommands(): self
     {
         $this->commands([
-            FilesInstallCommand::class
+            FilesInstallCommand::class,
         ]);
 
         return $this;

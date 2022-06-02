@@ -5,7 +5,6 @@ namespace Khamsolt\Orchid\Files\Commands;
 use Illuminate\Console\Command;
 use Khamsolt\Orchid\Files\FileServiceProvider;
 
-
 class FilesInstallCommand extends Command
 {
     public $signature = 'orchid-files:install';
@@ -18,9 +17,9 @@ class FilesInstallCommand extends Command
 
         $this->callSilent('vendor:publish', [
             '--provider' => FileServiceProvider::class,
-            '--tag'      => [
+            '--tag' => [
                 'config',
-                'migrations'
+                'migrations',
             ],
         ]);
 

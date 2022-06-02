@@ -18,11 +18,13 @@ use Orchid\Support\Color;
 
 class FileEditScreen extends Screen
 {
-    public function __construct(private readonly LayoutFactory $layoutFactory,
-                                private readonly Permissible   $permissible,
-                                private readonly Updatable     $updateService,
-                                private readonly Redirector    $redirector,
-                                private readonly Toast         $toast)
+    public function __construct(
+        private readonly LayoutFactory $layoutFactory,
+        private readonly Permissible   $permissible,
+        private readonly Updatable     $updateService,
+        private readonly Redirector    $redirector,
+        private readonly Toast         $toast
+    )
     {
     }
 

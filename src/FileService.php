@@ -2,7 +2,6 @@
 
 namespace Khamsolt\Orchid\Files;
 
-use Illuminate\Contracts\Session\Session;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Khamsolt\Orchid\Files\Contracts\Attachable;

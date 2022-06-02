@@ -24,11 +24,13 @@ class FileViewScreen extends Screen
 
     public bool $isImage = false;
 
-    public function __construct(private readonly LayoutFactory $layoutFactory,
-                                private readonly Repository $config,
-                                private readonly Permissible $permissible,
-                                private readonly Redirector $redirector,
-                                private readonly Toast $toast)
+    public function __construct(
+        private readonly LayoutFactory $layoutFactory,
+        private readonly Repository $config,
+        private readonly Permissible $permissible,
+        private readonly Redirector $redirector,
+        private readonly Toast $toast
+    )
     {
     }
 
@@ -51,10 +53,10 @@ class FileViewScreen extends Screen
     {
         return [
             'attachment' => $attachment,
-            'id'         => $attachment->getKey(),
-            'alt'        => $attachment->getAttribute('alt') ?? $attachment->getAttribute('original_name'),
-            'url'        => $attachment->url(),
-            'isImage'    => $attachment->isImage()
+            'id' => $attachment->getKey(),
+            'alt' => $attachment->getAttribute('alt') ?? $attachment->getAttribute('original_name'),
+            'url' => $attachment->url(),
+            'isImage' => $attachment->isImage(),
         ];
     }
 
