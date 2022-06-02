@@ -4,10 +4,11 @@ namespace Khamsolt\Orchid\Files;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Khamsolt\Orchid\Files\Commands\FilesInstallCommand;
 use Khamsolt\Orchid\Files\Contracts\Assignable;
 use Khamsolt\Orchid\Files\Contracts\Attachable;
 use Khamsolt\Orchid\Files\Contracts\Entities\Attachmentable;
-use Khamsolt\Orchid\Files\Contracts\Entities\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
 use Khamsolt\Orchid\Files\Contracts\Searchable;
 use Khamsolt\Orchid\Files\Contracts\Storage;
 use Khamsolt\Orchid\Files\Contracts\Updatable;
@@ -20,36 +21,29 @@ class FileServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->bindDependencies()
-            ->registerProviders();
+        $this->bindDependencies()->registerProviders();
 
-        $this->mergeConfigFrom(
-            __DIR__ . '/../config/orchid-files.php',
-            'orchid-files'
-        );
+        $this->mergeConfigFrom(__DIR__ . '/../config/orchid-files.php', 'orchid-files');
     }
 
     public function boot()
     {
         $this->registerConfig()
             ->registerDatabase()
-            ->registerViews();
+            ->registerViews()
+            ->registerCommands();
     }
 
     protected function registerConfig(): self
     {
-        $this->publishes([
-            __DIR__ . '/../orchid-files.php' => config_path('orchid-files.php'),
-        ], 'config');
+        $this->publishes([__DIR__ . '/../config/orchid-files.php' => config_path('orchid-files.php')], 'config');
 
         return $this;
     }
 
     protected function registerDatabase(): self
     {
-        $this->publishes([
-            __DIR__ . '/../database/migrations' => database_path('migrations'),
-        ], 'orchid-files');
+        $this->publishes([__DIR__ . '/../database/migrations' => database_path('migrations')], 'migrations');
 
         return $this;
     }
@@ -65,9 +59,16 @@ class FileServiceProvider extends ServiceProvider
             Thumbnail::class,
         ]);
 
-        $this->publishes([
-            __DIR__ . '/../resources/views' => resource_path('views/vendor/orchid_files'),
-        ], 'views');
+        $this->publishes([__DIR__ . '/../resources/views' => resource_path('views/vendor/orchid_files')], 'views');
+
+        return $this;
+    }
+
+    protected function registerCommands(): self
+    {
+        $this->commands([
+            FilesInstallCommand::class
+        ]);
 
         return $this;
     }
@@ -76,12 +77,12 @@ class FileServiceProvider extends ServiceProvider
     {
         $config = $this->app->make('config');
 
-        $this->app->bind(Storage::class,        $config->get('orchid-files.storage', SessionStorage::class));
-        $this->app->bind(Searchable::class,     $config->get('orchid-files.search', SearchService::class));
-        $this->app->bind(Updatable::class,      $config->get('orchid-files.update', FileService::class));
-        $this->app->bind(Attachable::class,     $config->get('orchid-files.attach', FileService::class));
-        $this->app->bind(Assignable::class,     $config->get('orchid-files.assign', FileAssigment::class));
-        $this->app->bind(Permissions::class,    $config->get('orchid-files.entities.permissions', Authorization\Permissions::class));
+        $this->app->bind(Storage::class, $config->get('orchid-files.storage', SessionStorage::class));
+        $this->app->bind(Searchable::class, $config->get('orchid-files.search', SearchService::class));
+        $this->app->bind(Updatable::class, $config->get('orchid-files.update', FileService::class));
+        $this->app->bind(Attachable::class, $config->get('orchid-files.attach', FileService::class));
+        $this->app->bind(Assignable::class, $config->get('orchid-files.assign', FileAssigment::class));
+        $this->app->bind(Permissible::class, $config->get('orchid-files.entities.permissions', Authorization\Permissions::class));
         $this->app->bind(Attachmentable::class, $config->get('orchid-files.entities.attachmentable', Entities\Attachmentable::class));
 
         return $this;

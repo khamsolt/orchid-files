@@ -2,9 +2,10 @@
 
 namespace Khamsolt\Orchid\Files\Screens;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Khamsolt\Orchid\Files\Authorization\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
 use Khamsolt\Orchid\Files\Models\Attachment;
 use Khamsolt\Orchid\Files\View\Components\Preview;
 use Orchid\Alert\Toast;
@@ -17,25 +18,18 @@ use Orchid\Screen\Sight;
 
 class FileViewScreen extends Screen
 {
-    private int $id;
+    public int $id;
 
-    private string $url;
+    public string $url;
 
-    private bool $isImage = false;
+    public bool $isImage = false;
 
-    private LayoutFactory $layoutFactory;
-
-    private Redirector $redirector;
-
-    private Toast $toast;
-
-    public function __construct(LayoutFactory $layoutFactory, Redirector $redirector, Toast $toast)
+    public function __construct(private readonly LayoutFactory $layoutFactory,
+                                private readonly Repository $config,
+                                private readonly Permissible $permissible,
+                                private readonly Redirector $redirector,
+                                private readonly Toast $toast)
     {
-        $this->layoutFactory = $layoutFactory;
-        $this->redirector = $redirector;
-        $this->toast = $toast;
-
-        $this->permission = Permissions::accessViewFile();
     }
 
     public function name(): ?string
@@ -48,16 +42,19 @@ class FileViewScreen extends Screen
         return 'On this page you can get detailed information about the selected file';
     }
 
+    public function permission(): ?iterable
+    {
+        return $this->permissible->accessViewFile();
+    }
+
     public function query(Attachment $attachment): array
     {
-        $this->id = $attachment->id;
-        $this->url = $attachment->url();
-        $this->isImage = $attachment->isImage();
-
         return [
             'attachment' => $attachment,
-            'alt' => $attachment->alt ?? $attachment->original_name,
-            'url' => $this->url,
+            'id'         => $attachment->getKey(),
+            'alt'        => $attachment->getAttribute('alt') ?? $attachment->getAttribute('original_name'),
+            'url'        => $attachment->url(),
+            'isImage'    => $attachment->isImage()
         ];
     }
 
@@ -75,7 +72,7 @@ class FileViewScreen extends Screen
 
             Link::make('Edit')
                 ->icon('pencil')
-                ->route('platform.systems.files.edit', $this->id),
+                ->route($this->config->get('orchid-files.routes.edit'), $this->id),
         ];
     }
 
@@ -87,14 +84,18 @@ class FileViewScreen extends Screen
 
             $this->layoutFactory->legend('attachment', [
                 Sight::make('id', __('#ID')),
+
                 Sight::make('user_id', __('User'))
                     ->render(fn (Attachment $attachment) => (string)(new Persona($attachment->user->presenter()))),
+
                 Sight::make('name', __('Name')),
                 Sight::make('original_name', __('Title')),
                 Sight::make('mime', __('Mime')),
                 Sight::make('extension', __('Extension')),
+
                 Sight::make('size', __('Size'))
                     ->render(fn (Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
+
                 Sight::make('sort', __('Sort')),
                 Sight::make('path', __('Path')),
                 Sight::make('description', __('Description')),
@@ -102,10 +103,12 @@ class FileViewScreen extends Screen
                 Sight::make('hash', __('Hash')),
                 Sight::make('disk', __('Disk')),
                 Sight::make('group', __('Group')),
+
                 Sight::make('created_at', __('Created'))
-                    ->render(fn (Attachment $attachment) => (string)$attachment->created_at?->toDateTimeString()),
+                    ->render(fn (Attachment $attachment) => (string)$attachment->getAttribute('created_at')?->toDateTimeString()),
+
                 Sight::make('updated_at', __('Updated'))
-                    ->render(fn (Attachment $attachment) => (string)$attachment->updated_at?->toDateTimeString()),
+                    ->render(fn (Attachment $attachment) => (string)$attachment->getAttribute('updated_at')?->toDateTimeString()),
             ]),
         ];
     }
@@ -116,6 +119,6 @@ class FileViewScreen extends Screen
 
         $this->toast->success(__('Media file deleted successfully'));
 
-        return $this->redirector->route('platform.systems.users');
+        return $this->redirector->route($this->config->get('orchid-files.routes.list'));
     }
 }

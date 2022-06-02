@@ -4,7 +4,7 @@ namespace Khamsolt\Orchid\Files\Screens;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Khamsolt\Orchid\Files\Authorization\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
 use Khamsolt\Orchid\Files\Contracts\Updatable;
 use Khamsolt\Orchid\Files\Data\Transfer\AttachmentObject;
 use Khamsolt\Orchid\Files\Http\Requests\UpdateRequest;
@@ -18,22 +18,12 @@ use Orchid\Support\Color;
 
 class FileEditScreen extends Screen
 {
-    private LayoutFactory $layoutFactory;
-
-    private Updatable $updateService;
-
-    private Redirector $redirector;
-
-    private Toast $toast;
-
-    public function __construct(LayoutFactory $layoutFactory, Updatable $updateService, Redirector $redirector, Toast $toast)
+    public function __construct(private readonly LayoutFactory $layoutFactory,
+                                private readonly Permissible   $permissible,
+                                private readonly Updatable     $updateService,
+                                private readonly Redirector    $redirector,
+                                private readonly Toast         $toast)
     {
-        $this->layoutFactory = $layoutFactory;
-        $this->updateService = $updateService;
-        $this->redirector = $redirector;
-        $this->toast = $toast;
-
-        $this->permission = Permissions::accessFileUpdates();
     }
 
     public function query(Attachment $attachment): iterable
@@ -51,6 +41,11 @@ class FileEditScreen extends Screen
     public function description(): ?string
     {
         return 'Be careful when modifying data in the file because some data are important components, consult with the developer before making changes.';
+    }
+
+    public function permission(): ?iterable
+    {
+        return $this->permissible->accessFileUpdates();
     }
 
     public function commandBar(): iterable
@@ -80,10 +75,10 @@ class FileEditScreen extends Screen
     {
         $dto = new AttachmentObject($request->post('attachment'));
 
-        $this->updateService->update($attachment->id, $dto);
+        $this->updateService->update($attachment->getKey(), $dto);
 
         $this->toast->success(__('File Information Updated'));
 
-        return $this->redirector->route('platform.systems.files.show', $attachment->id);
+        return $this->redirector->route('platform.systems.files.show', $attachment->getKey());
     }
 }

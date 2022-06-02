@@ -5,67 +5,64 @@ namespace Khamsolt\Orchid\Files\Authorization;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Support\Arr;
+use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
 use Orchid\Platform\ItemPermission;
 
-class Permissions implements \Khamsolt\Orchid\Files\Contracts\Entities\Permissions
+class Permissions implements Permissible
 {
-    private array $data;
-
-    private Translator $translator;
-
-    public function __construct(Repository $config, Translator $translator)
+    public function __construct(private readonly Repository $config,
+                                private readonly Translator $translator)
     {
-        $this->translator = $translator;
-
-        $this->data = $config->get('orchid-files.permissions', []);
     }
 
-    public static function accessViewFile(): string
+    public function accessViewFile(): ?iterable
     {
-        return 'platform.systems.files.show';
+        return $this->config->get('orchid-files.permissions.keys.view');
     }
 
-    public static function accessFileList(): string
+    public function accessFileList(): ?iterable
     {
-        return 'platform.systems.files';
+        return $this->config->get('orchid-files.permissions.keys.list');
     }
 
-    public static function accessFileAttachments(): string
+    public function accessFileAttachments(): ?iterable
     {
-        return 'platform.systems.files.attach';
+        return $this->config->get('orchid-files.permissions.keys.attach');
     }
 
-    public static function accessFileAssignment(): string
+    public function accessFileAssignment(): ?iterable
     {
-        return 'platform.systems.files.assign';
+        return $this->config->get('orchid-files.permissions.keys.assign');
     }
 
-    public static function accessFileUpdates(): string
+    public function accessFileUpdates(): ?iterable
     {
-        return 'platform.systems.files.update';
+        return $this->config->get('orchid-files.permissions.keys.update');
     }
 
-    public static function accessFileUploads(): string
+    public function accessFileUploads(): ?iterable
     {
-        return 'platform.systems.files.upload';
+        return $this->config->get('orchid-files.permissions.keys.upload');
     }
 
     public function getItemPermission(): ItemPermission
     {
-        $item = ItemPermission::group($this->t('group', 'File Explorer'));
+        $data = $this->config->get('orchid-files.permissions.titles', []);
 
-        $item->addPermission(static::accessFileList(),       $this->t('list', 'Accessing the file list'));
-        $item->addPermission(static::accessViewFile(),        $this->t('show', 'Access to view file'));
-        $item->addPermission(static::accessFileAttachments(), $this->t('assign', 'Accessing a file assignment'));
-        $item->addPermission(static::accessFileAssignment(), $this->t('attach', 'Access to file attachments'));
-        $item->addPermission(static::accessFileUpdates(), $this->t('update', 'Access to file updates'));
-        $item->addPermission(static::accessFileUploads(),  $this->t('upload', 'Access to file uploads'));
+        $item = ItemPermission::group($this->t('group', 'File Explorer', $data));
+
+        $item->addPermission(Arr::first(static::accessFileList()), $this->t('list', 'Accessing the file list', $data));
+        $item->addPermission(Arr::first(static::accessViewFile()), $this->t('view', 'Access to view file', $data));
+        $item->addPermission(Arr::first(static::accessFileAttachments()), $this->t('assign', 'Accessing a file assignment', $data));
+        $item->addPermission(Arr::first(static::accessFileAssignment()), $this->t('attach', 'Access to file attachments', $data));
+        $item->addPermission(Arr::first(static::accessFileUpdates()), $this->t('update', 'Access to file updates', $data));
+        $item->addPermission(Arr::first(static::accessFileUploads()), $this->t('upload', 'Access to file uploads', $data));
 
         return $item;
     }
 
-    private function t(string $key, string $default): string
+    private function t(string $key, string $default, array $data): string
     {
-        return $this->translator->get(Arr::get($this->data, $key, $default));
+        return $this->translator->get(Arr::get($data, $key, $default));
     }
 }

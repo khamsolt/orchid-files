@@ -3,7 +3,9 @@
 namespace Khamsolt\Orchid\Files\Layouts;
 
 use App\Models\User;
+use Illuminate\Contracts\Config\Repository;
 use Khamsolt\Orchid\Files\Authorization\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
 use Khamsolt\Orchid\Files\Models\Attachment;
 use Khamsolt\Orchid\Files\View\Components\Thumbnail;
 use Orchid\Screen\Actions\DropDown;
@@ -45,7 +47,7 @@ class FileListLayout extends Table
             TD::make('original_name', 'Original Name')
                 ->sort()
                 ->filter(TD::FILTER_TEXT)
-                ->render(fn (Attachment $attachment) => new Thumbnail($attachment->original_name, $attachment->thumbnail())),
+                ->render(fn (Attachment $attachment) => new Thumbnail($attachment->getAttribute('original_name'), $attachment->thumbnail())),
 
             TD::make('user_id', 'User')
                 ->sort()
@@ -122,10 +124,8 @@ class FileListLayout extends Table
 
             TD::make(__('Actions'))
                 ->cantHide()
-                ->canSee($this->query->get('user')->hasAnyAccess([
-                    Permissions::accessViewFile(),
-                    Permissions::accessFileUpdates(),
-                ]))
+                ->canSee($this->query->get('user')
+                    ->hasAnyAccess($this->permissible()->accessViewFile() + $this->permissible()->accessFileUpdates()))
                 ->align(TD::ALIGN_CENTER)
                 ->width('100px')
                 ->render(
@@ -134,17 +134,15 @@ class FileListLayout extends Table
                         ->list([
                             Link::make()
                                 ->name('View')
-                                ->route('platform.systems.files.show', $attachment->id)
+                                ->route($this->config()->get('orchid-files.routes.view'), $attachment->getKey())
                                 ->icon('eye')
-                                ->canSee($this->query->get('user')
-                                    ->hasAccess(Permissions::accessViewFile())),
+                                ->canSee($this->user()->hasAnyAccess($this->permissible()->accessViewFile())),
 
                             Link::make()
                                 ->name('Edit')
-                                ->route('platform.systems.files.edit', $attachment->id)
+                                ->route($this->config()->get('orchid-files.routes.edit'), $attachment->getKey())
                                 ->icon('pencil')
-                                ->canSee($this->query->get('user')
-                                    ->hasAccess(Permissions::accessFileUpdates())),
+                                ->canSee($this->user()->hasAnyAccess($this->permissible()->accessFileUpdates())),
                         ])
                 ),
         ]);
@@ -159,8 +157,23 @@ class FileListLayout extends Table
 
     protected function checkbox(): TD
     {
-        return TD::make()->render(fn (Attachment $attachment) => CheckBox::make('files[]')
+        return TD::make()->render(fn(Attachment $attachment) => CheckBox::make('files[]')
             ->value($attachment->id)
             ->checked(false));
+    }
+
+    protected function permissible(): Permissible
+    {
+        return $this->query->get('permissible');
+    }
+
+    protected function config(): Repository
+    {
+        return $this->query->get('config');
+    }
+
+    protected function user(): User
+    {
+        return $this->query->get('user');
     }
 }

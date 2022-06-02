@@ -8,14 +8,14 @@ return new class extends Migration {
 
     public function up()
     {
-        Schema::create('attachmentable', function (Blueprint $table) {
+        Schema::table('attachmentable', function (Blueprint $table) {
             $table->string('group')->nullable()->index();
         });
     }
 
     public function down()
     {
-        Schema::create('attachmentable', function (Blueprint $table) {
+        Schema::table('attachmentable', function (Blueprint $table) {
             $table->dropColumn(['group']);
         });
     }

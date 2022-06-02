@@ -3,14 +3,14 @@
 namespace Khamsolt\Orchid\Files\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Khamsolt\Orchid\Files\Contracts\Entities\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
 use Orchid\Platform\Dashboard;
 
 class AuthServiceProvider extends ServiceProvider
 {
     protected Dashboard $dashboard;
 
-    public function boot(Dashboard $dashboard, Permissions $permissions): void
+    public function boot(Dashboard $dashboard, Permissible $permissions): void
     {
         $this->dashboard = $dashboard;
 

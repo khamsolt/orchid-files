@@ -13,13 +13,6 @@ use Khamsolt\Orchid\Files\Models\Attachmentable;
 
 class FileService implements Updatable, Attachable
 {
-    private Session $session;
-
-    public function __construct(Session $session)
-    {
-        $this->session = $session;
-    }
-
     public function update(int $id, TransferObject $transferObject): bool
     {
         $result = Attachment::query()
