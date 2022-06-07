@@ -17,32 +17,32 @@ class Permissions implements Permissible
     {
     }
 
-    public function accessViewFile(): ?iterable
+    public function accessViewFile(): iterable
     {
         return $this->config->get('orchid-files.permissions.keys.view');
     }
 
-    public function accessFileList(): ?iterable
+    public function accessFileList(): iterable
     {
         return $this->config->get('orchid-files.permissions.keys.list');
     }
 
-    public function accessFileAttachments(): ?iterable
+    public function accessFileAttachments(): iterable
     {
         return $this->config->get('orchid-files.permissions.keys.attach');
     }
 
-    public function accessFileAssignment(): ?iterable
+    public function accessFileAssignment(): iterable
     {
         return $this->config->get('orchid-files.permissions.keys.assign');
     }
 
-    public function accessFileUpdates(): ?iterable
+    public function accessFileUpdates(): iterable
     {
         return $this->config->get('orchid-files.permissions.keys.update');
     }
 
-    public function accessFileUploads(): ?iterable
+    public function accessFileUploads(): iterable
     {
         return $this->config->get('orchid-files.permissions.keys.upload');
     }
@@ -53,12 +53,12 @@ class Permissions implements Permissible
 
         $item = ItemPermission::group($this->t('group', 'File Explorer', $data));
 
-        $item->addPermission(Arr::first(static::accessFileList()), $this->t('list', 'Accessing the file list', $data));
-        $item->addPermission(Arr::first(static::accessViewFile()), $this->t('view', 'Access to view file', $data));
-        $item->addPermission(Arr::first(static::accessFileAttachments()), $this->t('assign', 'Accessing a file assignment', $data));
-        $item->addPermission(Arr::first(static::accessFileAssignment()), $this->t('attach', 'Access to file attachments', $data));
-        $item->addPermission(Arr::first(static::accessFileUpdates()), $this->t('update', 'Access to file updates', $data));
-        $item->addPermission(Arr::first(static::accessFileUploads()), $this->t('upload', 'Access to file uploads', $data));
+        $item->addPermission(Arr::first($this->accessFileList()), $this->t('list', 'Accessing the file list', $data));
+        $item->addPermission(Arr::first($this->accessViewFile()), $this->t('view', 'Access to view file', $data));
+        $item->addPermission(Arr::first($this->accessFileAttachments()), $this->t('assign', 'Accessing a file assignment', $data));
+        $item->addPermission(Arr::first($this->accessFileAssignment()), $this->t('attach', 'Access to file attachments', $data));
+        $item->addPermission(Arr::first($this->accessFileUpdates()), $this->t('update', 'Access to file updates', $data));
+        $item->addPermission(Arr::first($this->accessFileUploads()), $this->t('upload', 'Access to file uploads', $data));
 
         return $item;
     }

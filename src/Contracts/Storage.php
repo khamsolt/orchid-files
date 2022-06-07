@@ -7,11 +7,11 @@ use Khamsolt\Orchid\Files\Data\Transfer\AssignmentObject;
 
 interface Storage
 {
-    public function put(string $key, TransferObject $object): void;
+    public function put(string $key, array $data): void;
 
     public function forget(string $key): void;
 
-    public function pull(string $key): null | TransferObject | AssignmentObject;
+    public function pull(string $key): ?array;
 
     public function has(string $key): bool;
 }

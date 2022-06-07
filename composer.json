@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "spatie/data-transfer-object": "^3.7",
         "illuminate/contracts": "^9.0",
         "orchid/platform": "^12.1"
@@ -48,10 +48,15 @@
     "scripts": {
         "analyse": "vendor/bin/phpstan analyse",
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage"
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "tools/php-cs-fixer/vendor/bin/php-cs-fixer list-files --config=./.php_cs.dist.php"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
     },
     "extra": {
         "laravel": {
@@ -63,6 +68,6 @@
             }
         }
     },
-    "minimum-stability": "main",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

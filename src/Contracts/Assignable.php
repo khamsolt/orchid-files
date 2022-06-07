@@ -12,7 +12,7 @@ interface Assignable
 
     public function putWithRedirect(AssignmentObject $attachmentableObject): RedirectResponse;
 
-    public function retrieve(string $key): TransferObject | AssignmentObject;
+    public function retrieve(string $key):  AssignmentObject;
 
-    public function has(): bool;
+    public function has(int|string|null $key): bool;
 }

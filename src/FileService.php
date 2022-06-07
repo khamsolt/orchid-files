@@ -2,8 +2,6 @@
 
 namespace Khamsolt\Orchid\Files;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Khamsolt\Orchid\Files\Contracts\Attachable;
 use Khamsolt\Orchid\Files\Contracts\Data\TransferObject;
 use Khamsolt\Orchid\Files\Contracts\Updatable;
@@ -18,35 +16,39 @@ class FileService implements Updatable, Attachable
             ->where('id', '=', $id)
             ->update($transferObject->toArray());
 
-        return $result;
+        return (bool)$result;
     }
 
-    public function attach(int $attachmentId, string $type, int $id, ?string $group = null): Model
+    public function attach(int $attachmentId, string $type, int $id, ?string $group = null): int
     {
-        $model = new Attachmentable([
+        $data = [
             'attachmentable_type' => $type,
             'attachmentable_id' => $id,
             'attachment_id' => $attachmentId,
-            'group' => $group,
-        ]);
+            'group' => $group
+        ];
 
-        $model->saveOrFail();
+        $model = new Attachmentable();
 
-        return $model;
+        $model->newQuery()->updateOrInsert($data);
+
+        return 0;
     }
 
     public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool
     {
-        $data = (new Collection($attachments))->map(fn (int|string $attachmentId) => is_int($attachmentId) ? [
+        $data = array_map(fn(int $attachmentId) => [
             'attachmentable_type' => $type,
             'attachmentable_id' => $id,
             'attachment_id' => $attachmentId,
             'group' => $group,
-        ] : null)->filter();
+        ], $attachments);
 
-        $result = Attachmentable::query()->insert($data);
+        $data = array_filter($data);
 
-        return $result;
+        $model = new Attachmentable();
+
+        return $model->newQuery()->insert($data);
     }
 
     public function detachAll(string $type, int $id, ?string $group = null): int
@@ -56,16 +58,17 @@ class FileService implements Updatable, Attachable
 
     public function detach(array|int|null $attachment, string $type, int $id, ?string $group = null): int
     {
-        $builder = Attachmentable::where('attachmentable_type', '=', $type)
+        $model = new Attachmentable();
+
+        $builder = $model->newQuery()
+            ->where('attachmentable_type', '=', $type)
             ->where('attachmentable_id', '=', $id)
             ->where('group', '=', $group);
 
         if (is_array($attachment)) {
-            return $builder->whereIn('attachment_id', $attachment)->delete();
-        }
-
-        if (is_int($attachment)) {
-            return $builder->where('attachment_id', '=', $attachment)->delete();
+            $builder->whereIn('attachment_id', $attachment);
+        } elseif (is_int($attachment)) {
+            $builder->where('attachment_id', '=', $attachment);
         }
 
         return $builder->delete();

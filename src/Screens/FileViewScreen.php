@@ -3,6 +3,7 @@
 namespace Khamsolt\Orchid\Files\Screens;
 
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
@@ -15,6 +16,7 @@ use Orchid\Screen\LayoutFactory;
 use Orchid\Screen\Layouts\Persona;
 use Orchid\Screen\Screen;
 use Orchid\Screen\Sight;
+use Orchid\Support\Presenter;
 
 class FileViewScreen extends Screen
 {
@@ -24,13 +26,12 @@ class FileViewScreen extends Screen
 
     public bool $isImage = false;
 
-    public function __construct(
-        private readonly LayoutFactory $layoutFactory,
-        private readonly Repository $config,
-        private readonly Permissible $permissible,
-        private readonly Redirector $redirector,
-        private readonly Toast $toast
-    )
+    public function __construct(private readonly LayoutFactory $layoutFactory,
+                                private readonly Repository $config,
+                                private readonly Permissible $permissible,
+                                private readonly Redirector $redirector,
+                                private readonly Translator $translator,
+                                private readonly Toast $toast)
     {
     }
 
@@ -51,12 +52,14 @@ class FileViewScreen extends Screen
 
     public function query(Attachment $attachment): array
     {
+        $attachment->load(['user']);
+
         return [
             'attachment' => $attachment,
             'id' => $attachment->getKey(),
             'alt' => $attachment->getAttribute('alt') ?? $attachment->getAttribute('original_name'),
             'url' => $attachment->url(),
-            'isImage' => $attachment->isImage(),
+            'isImage' => $attachment->isImage()
         ];
     }
 
@@ -64,7 +67,7 @@ class FileViewScreen extends Screen
     {
         return [
             Button::make('Delete')
-                ->confirm(__('Once the media file is deleted, all of its resources and data will be permanently deleted. Before deleting your media file, please download any data or information that you wish to retain.'))
+                ->confirm($this->translator->get('Once the media file is deleted, all of its resources and data will be permanently deleted. Before deleting your media file, please download any data or information that you wish to retain.'))
                 ->icon('trash')
                 ->method('delete'),
 
@@ -74,7 +77,7 @@ class FileViewScreen extends Screen
 
             Link::make('Edit')
                 ->icon('pencil')
-                ->route($this->config->get('orchid-files.routes.edit'), $this->id),
+                ->route($this->config->get('orchid-files.routes.edit'), [$this->id]),
         ];
     }
 
@@ -85,32 +88,40 @@ class FileViewScreen extends Screen
                 ->canSee($this->isImage),
 
             $this->layoutFactory->legend('attachment', [
-                Sight::make('id', __('#ID')),
+                Sight::make('id', $this->translator->get('#ID')),
 
-                Sight::make('user_id', __('User'))
-                    ->render(fn (Attachment $attachment) => (string)(new Persona($attachment->user->presenter()))),
+                Sight::make('user_id', $this->translator->get('User'))
+                    ->render(function (Attachment $attachment) {
+                        $presenter = $attachment->getRelation('user')->presenter();
 
-                Sight::make('name', __('Name')),
-                Sight::make('original_name', __('Title')),
-                Sight::make('mime', __('Mime')),
-                Sight::make('extension', __('Extension')),
+                        if ($presenter instanceof Presenter) {
+                            return (string)new Persona($presenter);
+                        }
 
-                Sight::make('size', __('Size'))
-                    ->render(fn (Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
+                        return $this->translator->get('None');
+                    }),
 
-                Sight::make('sort', __('Sort')),
-                Sight::make('path', __('Path')),
-                Sight::make('description', __('Description')),
-                Sight::make('alt', __('Alt')),
-                Sight::make('hash', __('Hash')),
-                Sight::make('disk', __('Disk')),
-                Sight::make('group', __('Group')),
+                Sight::make('name', $this->translator->get('Name')),
+                Sight::make('original_name', $this->translator->get('Title')),
+                Sight::make('mime', $this->translator->get('Mime')),
+                Sight::make('extension', $this->translator->get('Extension')),
 
-                Sight::make('created_at', __('Created'))
-                    ->render(fn (Attachment $attachment) => (string)$attachment->getAttribute('created_at')?->toDateTimeString()),
+                Sight::make('size', $this->translator->get('Size'))
+                    ->render(fn(Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
 
-                Sight::make('updated_at', __('Updated'))
-                    ->render(fn (Attachment $attachment) => (string)$attachment->getAttribute('updated_at')?->toDateTimeString()),
+                Sight::make('sort', $this->translator->get('Sort')),
+                Sight::make('path', $this->translator->get('Path')),
+                Sight::make('description', $this->translator->get('Description')),
+                Sight::make('alt', $this->translator->get('Alt')),
+                Sight::make('hash', $this->translator->get('Hash')),
+                Sight::make('disk', $this->translator->get('Disk')),
+                Sight::make('group', $this->translator->get('Group')),
+
+                Sight::make('created_at', $this->translator->get('Created'))
+                    ->render(fn(Attachment $attachment) => (string)$attachment->getAttribute('created_at')?->toDateTimeString()),
+
+                Sight::make('updated_at', $this->translator->get('Updated'))
+                    ->render(fn(Attachment $attachment) => (string)$attachment->getAttribute('updated_at')?->toDateTimeString()),
             ]),
         ];
     }
@@ -119,7 +130,7 @@ class FileViewScreen extends Screen
     {
         $attachment->delete();
 
-        $this->toast->success(__('Media file deleted successfully'));
+        $this->toast->success($this->translator->get('Media file deleted successfully'));
 
         return $this->redirector->route($this->config->get('orchid-files.routes.list'));
     }

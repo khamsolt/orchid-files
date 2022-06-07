@@ -2,6 +2,7 @@
 
 namespace Khamsolt\Orchid\Files\View\Components;
 
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
@@ -27,6 +28,12 @@ class Thumbnail extends Component
 
     public function __toString(): string
     {
-        return $this->resolveView()->with($this->data())->render();
+        $view = $this->resolveView();
+
+        if ($view instanceof View) {
+            return $view->with($this->data())->render();
+        }
+
+        throw new Exception('Thumbnail Component Exception');
     }
 }

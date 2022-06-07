@@ -2,8 +2,9 @@
 
 namespace Khamsolt\Orchid\Files\Screens;
 
-use App\Models\User;
+
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -15,6 +16,7 @@ use Khamsolt\Orchid\Files\Exceptions\AttachedFileException;
 use Khamsolt\Orchid\Files\Http\Requests\SelectRequest;
 use Khamsolt\Orchid\Files\Layouts\FileListLayout;
 use Orchid\Alert\Toast;
+use Orchid\Platform\Models\User;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Fields\Upload;
 use Orchid\Screen\LayoutFactory;
@@ -25,16 +27,22 @@ class FileListScreen extends Screen
 {
     public User $user;
 
+    public ?string $mode;
+
+    public string|int|null $key;
+
     public function __construct(
         private readonly LayoutFactory $layoutFactory,
-        private readonly Repository    $config,
-        private readonly Permissible   $permissible,
-        private readonly Searchable    $searchService,
-        private readonly Attachable    $attachService,
-        private readonly Assignable    $selectManager,
-        private readonly Redirector    $redirector,
-        private readonly Toast         $toast
-    ) {
+        private readonly Repository $config,
+        private readonly Permissible $permissible,
+        private readonly Searchable $searchService,
+        private readonly Attachable $attachService,
+        private readonly Assignable $selectManager,
+        private readonly Redirector $redirector,
+        private readonly Translator $translator,
+        private readonly Toast $toast
+    )
+    {
     }
 
     public function query(Request $request): iterable
@@ -43,14 +51,17 @@ class FileListScreen extends Screen
 
         $mode = $request->get('mode');
 
+        $key = $request->get('key');
+
         $files = $this->searchService->paginate();
 
         return [
-            'files' => $files,
-            'mode' => $mode,
-            'user' => $user,
+            'files'  => $files,
+            'mode'   => $mode,
+            'key'    => $key,
+            'user'   => $user,
             'config' => $this->config,
-            'permissible' => $this->permissible,
+            'permissible' => $this->permissible
         ];
     }
 
@@ -72,11 +83,13 @@ class FileListScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-            Button::make(__('Select'))
-                ->type(Color::DEFAULT())
+            Button::make($this->translator->get('Select'))
+                ->type(new Color('default'))
                 ->icon('check')
-                ->method('attach')
-                ->canSee($this->selectManager->has()),
+                ->method('attach', [
+                    'id' => $this->key
+                ])
+                ->canSee($this->selectManager->has($this->key)),
         ];
     }
 
@@ -97,18 +110,20 @@ class FileListScreen extends Screen
 
     public function attach(SelectRequest $request): RedirectResponse
     {
-        $id = $request->getFirst();
+        $attachmentId = $request->getFirst();
+
+        $key  = $request->get('id');
 
         try {
-            $dto = $this->selectManager->retrieve();
+            $dto = $this->selectManager->retrieve($key);
 
-            $this->attachService->attach((int)$id, $dto->type, $dto->id, $dto->group);
+            $this->attachService->attach((int)$attachmentId, $dto->type, (int)$dto->id, $dto->group);
 
-            $this->toast->success(__('The file has been successfully attached'));
+            $this->toast->success($this->translator->get('The file has been successfully attached'));
 
-            return $this->redirector->to($dto->redirect);
+            return $this->redirector->route($dto->redirect, $dto->id);
         } catch (AttachedFileException $exception) {
-            $this->toast->error(__('Attempting to attach a file failed, contact the administrator'));
+            $this->toast->error($this->translator->get('Attempting to attach a file failed, contact the administrator'));
         }
 
         return $this->redirector->route($this->config->get('orchid-files.routes.main'));

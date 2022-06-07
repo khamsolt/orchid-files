@@ -2,6 +2,7 @@
 
 namespace Khamsolt\Orchid\Files;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Khamsolt\Orchid\Files\Commands\FilesInstallCommand;
@@ -13,21 +14,25 @@ use Khamsolt\Orchid\Files\Contracts\Searchable;
 use Khamsolt\Orchid\Files\Contracts\Storage;
 use Khamsolt\Orchid\Files\Contracts\Updatable;
 use Khamsolt\Orchid\Files\Data\Storage\SessionStorage;
+use Khamsolt\Orchid\Files\Events\AttachedFile;
+use Khamsolt\Orchid\Files\Listeners\AttachedFileListener;
 use Khamsolt\Orchid\Files\Providers\AuthServiceProvider;
 use Khamsolt\Orchid\Files\View\Components\Preview;
 use Khamsolt\Orchid\Files\View\Components\Thumbnail;
 
 class FileServiceProvider extends ServiceProvider
 {
-    public function register()
+    public function register(): void
     {
-        $this->bindDependencies()->registerProviders();
-
         $this->mergeConfigFrom(__DIR__ . '/../config/orchid-files.php', 'orchid-files');
+
+        $this->bindDependencies()->registerProviders();
     }
 
-    public function boot()
+    public function boot(Dispatcher $events): void
     {
+        $events->listen(AttachedFile::class, [AttachedFileListener::class, 'handle']);
+
         $this->registerConfig()
             ->registerDatabase()
             ->registerViews()

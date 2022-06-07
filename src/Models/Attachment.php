@@ -42,18 +42,20 @@ class Attachment extends \Orchid\Attachment\Models\Attachment
 
     public function sizeToKb(): float
     {
-        return $this->size > 0 ? round($this->size / 1024, 2) : 0;
+        return ($size = (int)$this->getAttribute('size')) > 0 ? round($size / 1024, 2) : 0;
     }
 
     public function thumbnail(): string
     {
-        return $this->isImage() ? $this->url() : 'https://via.placeholder.com/150?text=.' . strtoupper($this->extension);
+        $default = 'https://via.placeholder.com/150?text=.' . strtoupper($this->getAttribute('extension'));
+
+        return $this->isImage() ? $this->url() ?? $default : $default;
     }
 
     public function isImage(): bool
     {
         $exts = ['gif', 'jpe', 'jpeg', 'jpg', 'svg', 'ico', 'png'];
 
-        return in_array(strtolower($this->extension), $exts);
+        return in_array(strtolower($this->getAttribute('extension')), $exts);
     }
 }

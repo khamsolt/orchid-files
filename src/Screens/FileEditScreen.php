@@ -2,6 +2,8 @@
 
 namespace Khamsolt\Orchid\Files\Screens;
 
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
@@ -18,13 +20,13 @@ use Orchid\Support\Color;
 
 class FileEditScreen extends Screen
 {
-    public function __construct(
-        private readonly LayoutFactory $layoutFactory,
-        private readonly Permissible   $permissible,
-        private readonly Updatable     $updateService,
-        private readonly Redirector    $redirector,
-        private readonly Toast         $toast
-    )
+    public function __construct(private readonly LayoutFactory $layoutFactory,
+                                private readonly Permissible $permissible,
+                                private readonly Repository $config,
+                                private readonly Updatable $updateService,
+                                private readonly Redirector $redirector,
+                                private readonly Translator $translator,
+                                private readonly Toast $toast)
     {
     }
 
@@ -65,7 +67,7 @@ class FileEditScreen extends Screen
                 ->description('Basic information about the file')
                 ->commands([
                     Button::make()
-                        ->type(Color::DEFAULT())
+                        ->type(new Color('default'))
                         ->icon('pencil')
                         ->name('Update')
                         ->method('update'),
@@ -79,8 +81,8 @@ class FileEditScreen extends Screen
 
         $this->updateService->update($attachment->getKey(), $dto);
 
-        $this->toast->success(__('File Information Updated'));
+        $this->toast->success($this->translator->get('File Information Updated'));
 
-        return $this->redirector->route('platform.systems.files.show', $attachment->getKey());
+        return $this->redirector->route($this->config->get('orchid-files.routes.view'), $attachment->getKey());
     }
 }

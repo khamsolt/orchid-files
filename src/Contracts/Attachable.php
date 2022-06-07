@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 interface Attachable
 {
-    public function attach(int $attachmentId, string $type, int $id, ?string $group = null): Model;
+    public function attach(int $attachmentId, string $type, int $id, ?string $group = null): int;
 
     public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool;
 

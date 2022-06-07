@@ -2,7 +2,8 @@
 
 namespace Khamsolt\Orchid\Files\Layouts;
 
-use App\Models\User;
+
+use Orchid\Platform\Models\User;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Layouts\Rows;

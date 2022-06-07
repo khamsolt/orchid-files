@@ -3,6 +3,12 @@
 All notable changes to `orchid-files` will be documented in this file.
 
 
+## 1.0.3 - 2022-06-07
+
+### Added
+
+- Fix File Attach
+
 ## 1.0.2 - 2022-06-02
 
 ### Added

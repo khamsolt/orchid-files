@@ -2,13 +2,15 @@
 
 namespace Khamsolt\Orchid\Files\Layouts;
 
-use App\Models\User;
 use Illuminate\Contracts\Config\Repository;
 use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
+use Khamsolt\Orchid\Files\Enums\Mode;
 use Khamsolt\Orchid\Files\Models\Attachment;
 use Khamsolt\Orchid\Files\View\Components\Thumbnail;
+use Orchid\Platform\Models\User;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Cell;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Radio;
 use Orchid\Screen\Fields\Relation;
@@ -24,11 +26,17 @@ class FileListLayout extends Table
     {
         $mode = $this->query->get('mode');
 
+        if ($mode === null) {
+            return [];
+        }
+
+        $mode = Mode::from($mode);
+
         $selection = [];
 
-        if ($mode === 'checkbox') {
+        if ($mode === Mode::MULTIPLE) {
             $selection[] = $this->checkbox();
-        } elseif ($mode === 'radio') {
+        } elseif ($mode === Mode::SINGLE) {
             $selection[] = $this->radio();
         }
 
@@ -53,7 +61,7 @@ class FileListLayout extends Table
                 ->filter(Relation::make()
                         ->fromModel(User::class, 'id')
                         ->displayAppend('list_item'))
-                ->render(fn (Attachment $attachment) => new Persona($attachment->user->presenter())),
+                ->render(fn (Attachment $attachment) => new Persona($attachment->getRelation('user')->presenter())),
 
             TD::make('name', 'Name')
                 ->sort()
@@ -113,18 +121,21 @@ class FileListLayout extends Table
             TD::make('created_at', 'Created')
                 ->sort()
                 ->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn (Attachment $attachment) => $attachment->created_at?->toDateTimeString()),
+                ->render(fn (Attachment $attachment) => $attachment->getAttribute('created_at')?->toDateTimeString()),
 
             TD::make('updated_at', 'Updated')
                 ->sort()
                 ->defaultHidden()
                 ->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn (Attachment $attachment) => $attachment->created_at?->toDateTimeString()),
+                ->render(fn (Attachment $attachment) => $attachment->getAttribute('created_at')?->toDateTimeString()),
 
-            TD::make(__('Actions'))
+            TD::make('Actions')
                 ->cantHide()
-                ->canSee($this->query->get('user')
-                    ->hasAnyAccess($this->permissible()->accessViewFile() + $this->permissible()->accessFileUpdates()))
+                ->canSee($this->user()
+                    ->hasAnyAccess(array_merge(
+                            (array)$this->permissible()->accessViewFile(),
+                            (array)$this->permissible()->accessFileUpdates())
+                    ))
                 ->align(TD::ALIGN_CENTER)
                 ->width('100px')
                 ->render(
@@ -147,18 +158,20 @@ class FileListLayout extends Table
         ]);
     }
 
-    protected function radio(): TD
+    protected function radio(): Cell
     {
-        return TD::make()->render(fn (Attachment $attachment) => Radio::make('files[]')
-            ->value($attachment->id)
-            ->checked(false));
+        return TD::make()
+            ->render(fn(Attachment $attachment): Radio => Radio::make('file')
+                ->value($attachment->getKey())
+                ->checked(false));
     }
 
-    protected function checkbox(): TD
+    protected function checkbox(): Cell
     {
-        return TD::make()->render(fn (Attachment $attachment) => CheckBox::make('files[]')
-            ->value($attachment->id)
-            ->checked(false));
+        return TD::make()
+            ->render(fn(Attachment $attachment): CheckBox => CheckBox::make('files[]')
+                ->value($attachment->getKey())
+                ->checked(false));
     }
 
     protected function permissible(): Permissible

@@ -15,13 +15,12 @@ class SelectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'files' => ['required', 'array', 'filled'],
-            'files.' => ['required', 'numeric', 'min:0'],
+            'file' => ['required', 'numeric', 'min:0'],
         ];
     }
 
     public function getFirst(): ?int
     {
-        return Arr::first($this->post('files'));
+        return (int)$this->post('file');
     }
 }
