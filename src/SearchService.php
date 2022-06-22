@@ -16,4 +16,11 @@ class SearchService implements Searchable
 
         return $result;
     }
+
+    public function find(int $id): Attachment
+    {
+        $attachment = Attachment::with(['user'])->findOrFail($id);
+
+        return $attachment;
+    }
 }

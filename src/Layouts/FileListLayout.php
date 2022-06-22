@@ -161,7 +161,7 @@ class FileListLayout extends Table
     protected function radio(): Cell
     {
         return TD::make()
-            ->render(fn(Attachment $attachment): Radio => Radio::make('file')
+            ->render(fn(Attachment $attachment): Radio => Radio::make('attachments')
                 ->value($attachment->getKey())
                 ->checked(false));
     }
@@ -169,7 +169,7 @@ class FileListLayout extends Table
     protected function checkbox(): Cell
     {
         return TD::make()
-            ->render(fn(Attachment $attachment): CheckBox => CheckBox::make('files[]')
+            ->render(fn(Attachment $attachment): CheckBox => CheckBox::make('attachments[]')
                 ->value($attachment->getKey())
                 ->checked(false));
     }

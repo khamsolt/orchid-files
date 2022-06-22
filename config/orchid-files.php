@@ -1,5 +1,9 @@
 <?php return [
 
+    'table'           => 'attachments',
+
+    'relation_table'  => 'attachmentable',
+
     /**
      *  The list route names so than used package
      */
@@ -34,16 +38,6 @@
             'upload' => ['platform.files.upload'],
         ]
     ],
-
-    /**
-     *
-     */
-    'assign_storage' => \Khamsolt\Orchid\Files\Data\Storage\SessionStorage::class,
-
-    /**
-     *
-     */
-    'assign' => \Khamsolt\Orchid\Files\FileAssigment::class,
 
     /**
      *
