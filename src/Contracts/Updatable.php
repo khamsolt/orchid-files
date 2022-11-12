@@ -2,9 +2,12 @@
 
 namespace Khamsolt\Orchid\Files\Contracts;
 
-use Khamsolt\Orchid\Files\Contracts\Data\TransferObject;
-
 interface Updatable
 {
-    public function update(int $id, TransferObject $transferObject): bool;
+    /**
+     * @param int $id
+     * @param array<string, mixed> $data
+     * @return bool
+     */
+    public function update(int $id, array $data): bool;
 }

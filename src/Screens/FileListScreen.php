@@ -8,12 +8,17 @@ use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
-use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
-use Khamsolt\Orchid\Files\Contracts\Searchable;
+use Illuminate\Validation\ValidationException;
+use Khamsolt\Orchid\Files\Contracts\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Repository as FileRepository;
 use Khamsolt\Orchid\Files\Http\Requests\SelectRequest;
 use Khamsolt\Orchid\Files\Layouts\FileListLayout;
+use Khamsolt\Orchid\Files\Models\Attachment;
+use Orchid\Alert\Toast;
 use Orchid\Platform\Models\User;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Fields\Cropper;
 use Orchid\Screen\Fields\Upload;
 use Orchid\Screen\LayoutFactory;
 use Orchid\Screen\Screen;
@@ -27,21 +32,21 @@ class FileListScreen extends Screen
 
     public ?string $redirect;
 
-    public function __construct(private readonly LayoutFactory $layoutFactory,
-                                private readonly Repository $config,
-                                private readonly Permissible $permissible,
-                                private readonly Searchable $searchService,
-                                private readonly Redirector $redirector,
-                                private readonly Translator $translator
-    )
-    {
+    public function __construct(
+        private readonly Repository     $config,
+        private readonly Permissions    $permissible,
+        private readonly FileRepository $fileRepository,
+        private readonly Redirector     $redirector,
+        private readonly Translator     $translator,
+        private readonly Toast          $toast
+    ) {
     }
 
     public function query(Request $request): iterable
     {
         $user = $request->user();
 
-        $files = $this->searchService->paginate();
+        $files = $this->fileRepository->paginate();
 
         return [
             'files' => $files,
@@ -49,7 +54,8 @@ class FileListScreen extends Screen
             'config' => $this->config,
             'permissible' => $this->permissible,
             'mode' => $request->get('mode'),
-            'redirect' => $request->get('redirect')
+            'redirect' => $request->get('redirect'),
+            'router' => $this->redirector->getUrlGenerator()
         ];
     }
 
@@ -70,9 +76,18 @@ class FileListScreen extends Screen
 
     public function commandBar(): iterable
     {
+        /** @var string $uploadRoute */
+        $uploadRoute = $this->config->get('orchid-files.routes.upload', 'platform.files.upload');
+
         return [
-            Button::make($this->translator->get('Attach'))
+            Link::make('Upload File')
                 ->type(new Color('default'))
+                ->icon('add')
+                ->route($uploadRoute)
+                ->canSee(!$this->redirect && !$this->mode),
+
+            Button::make('Attach')
+                ->type(new Color('primary'))
                 ->icon('check')
                 ->method('attaching', [
                     'url' => $this->redirect
@@ -84,14 +99,16 @@ class FileListScreen extends Screen
     public function layout(): iterable
     {
         return [
-            $this->layoutFactory->rows([
+            LayoutFactory::rows([
+                Upload::make('upload.files')->title('Quick Loading'),
 
-                Upload::make('files_with_catalog')->title('Upload With Catalog'),
-
+                Cropper::make('upload.image')
+                    ->staticBackdrop()
+                    ->title('Image')
             ])->canSee($this->user->hasAnyAccess($this->permissible->accessFileUploads())),
 
-            $this->layoutFactory->blank([
-                FileListLayout::class,
+            LayoutFactory::blank([
+                new FileListLayout($this->redirector->getUrlGenerator()),
             ]),
         ];
     }
@@ -100,9 +117,10 @@ class FileListScreen extends Screen
     {
         $attachmentId = $request->getFirst();
 
+        /** @var string $url */
         $url = $request->get('url');
 
-        $attachment = $this->searchService->find($attachmentId);
+        $attachment = $this->fileRepository->find($attachmentId);
 
         $query = http_build_query([
             'attachment_id' => $attachmentId,
@@ -110,5 +128,17 @@ class FileListScreen extends Screen
         ]);
 
         return $this->redirector->secure("$url?$query");
+    }
+
+    public function delete(int $attachmentId): void
+    {
+        $attachment = Attachment::query()->where('id', '=', $attachmentId)->firstOrFail();
+
+        $attachment->delete();
+
+        /** @var string $successMessage */
+        $successMessage = $this->translator->get('Media file deleted successfully');
+
+        $this->toast->success($successMessage);
     }
 }

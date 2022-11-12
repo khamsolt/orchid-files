@@ -5,25 +5,24 @@ namespace Khamsolt\Orchid\Files\View\Components;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use Khamsolt\Orchid\Files\Models\Attachment;
 
 class Thumbnail extends Component
 {
-    public string $name;
+    public string $title;
 
     public string $url;
 
-    public ?string $alt;
+    public string $subTitle;
 
-    public function __construct(string $name, string $url, ?string $alt = null)
+    public string $image;
+
+    public function __construct(Attachment $attachment, string $url)
     {
-        $this->name = $name;
+        $this->title = $attachment->original_name;
+        $this->image = $attachment->thumbnail();
+        $this->subTitle = $attachment->hash;
         $this->url = $url;
-        $this->alt = $alt;
-    }
-
-    public function render(): View
-    {
-        return view('orchid-files::components.thumbnail');
     }
 
     public function __toString(): string
@@ -35,5 +34,10 @@ class Thumbnail extends Component
         }
 
         throw new Exception('Thumbnail Component Exception');
+    }
+
+    public function render(): View
+    {
+        return view('orchid-files::components.thumbnail');
     }
 }

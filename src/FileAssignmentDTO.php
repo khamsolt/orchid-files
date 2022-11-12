@@ -1,11 +1,11 @@
 <?php
 
-namespace Khamsolt\Orchid\Files\Data\Transfer;
+namespace Khamsolt\Orchid\Files;
 
 use Khamsolt\Orchid\Files\Contracts\Data\TransferObject;
 use Spatie\DataTransferObject\DataTransferObject;
 
-class AssignmentObject extends DataTransferObject implements TransferObject
+class FileAssignmentDTO extends DataTransferObject
 {
     public string $type;
 

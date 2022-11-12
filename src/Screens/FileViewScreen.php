@@ -6,7 +6,8 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Khamsolt\Orchid\Files\Contracts\Entities\Permissible;
+use Khamsolt\Orchid\Files\Contracts\Permissions;
+use Khamsolt\Orchid\Files\FileSettings;
 use Khamsolt\Orchid\Files\Models\Attachment;
 use Khamsolt\Orchid\Files\View\Components\Preview;
 use Orchid\Alert\Toast;
@@ -26,13 +27,13 @@ class FileViewScreen extends Screen
 
     public bool $isImage = false;
 
-    public function __construct(private readonly LayoutFactory $layoutFactory,
-                                private readonly Repository $config,
-                                private readonly Permissible $permissible,
-                                private readonly Redirector $redirector,
-                                private readonly Translator $translator,
-                                private readonly Toast $toast)
-    {
+    public function __construct(
+        private readonly Repository  $config,
+        private readonly Permissions $permissible,
+        private readonly Redirector  $redirector,
+        private readonly Translator  $translator,
+        private readonly Toast       $toast
+    ) {
     }
 
     public function name(): ?string
@@ -65,73 +66,106 @@ class FileViewScreen extends Screen
 
     public function commandBar(): array
     {
+        /** @var string $deleteConfirmMessage */
+        $deleteConfirmMessage = $this->translator->get('Once the media file is deleted, all of its resources and data will be permanently deleted. Before deleting your media file, please download any data or information that you wish to retain.');
+
+        /** @var string $urlView */
+        $urlView = $this->config->get('orchid-files.routes.edit');
+
         return [
             Button::make('Delete')
-                ->confirm($this->translator->get('Once the media file is deleted, all of its resources and data will be permanently deleted. Before deleting your media file, please download any data or information that you wish to retain.'))
+                ->confirm($deleteConfirmMessage)
                 ->icon('trash')
                 ->method('delete'),
 
             Link::make('Open')
+                ->target('blank')
                 ->icon('cloud-download')
                 ->href($this->url),
 
             Link::make('Edit')
+                ->target('blank')
                 ->icon('pencil')
-                ->route($this->config->get('orchid-files.routes.edit'), [$this->id]),
+                ->route($urlView, [$this->id]),
         ];
     }
 
     public function layout(): iterable
     {
+
         return [
-            $this->layoutFactory->component(Preview::class)
+            LayoutFactory::component(Preview::class)
                 ->canSee($this->isImage),
 
-            $this->layoutFactory->legend('attachment', [
-                Sight::make('id', $this->translator->get('#ID')),
+            LayoutFactory::legend('attachment', [
+                Sight::make('id', $this->translate('#ID')),
 
-                Sight::make('user_id', $this->translator->get('User'))
+                Sight::make('user_id', $this->translate('User'))
                     ->render(function (Attachment $attachment) {
-                        $presenter = $attachment->getRelation('user')->presenter();
+                        /** @var array<string, class-string> $presenters */
+                        $presenters = $this->config->get('orchid-files.presenters');
+
+                        $filePresenter = new FileSettings();
+
+                        $presenter = $filePresenter->resolveUserPresenter($attachment, $presenters);
 
                         if ($presenter instanceof Presenter) {
-                            return (string)new Persona($presenter);
+                            return new Persona($presenter);
                         }
 
-                        return $this->translator->get('None');
+                        return $this->translate('User ID :id', ['id' => $presenter]);
                     }),
 
-                Sight::make('name', $this->translator->get('Name')),
-                Sight::make('original_name', $this->translator->get('Title')),
-                Sight::make('mime', $this->translator->get('Mime')),
-                Sight::make('extension', $this->translator->get('Extension')),
+                Sight::make('name', $this->translate('Name')),
+                Sight::make('original_name', $this->translate('Title')),
+                Sight::make('mime', $this->translate('Mime')),
+                Sight::make('extension', $this->translate('Extension')),
 
-                Sight::make('size', $this->translator->get('Size'))
+                Sight::make('size', $this->translate('Size'))
                     ->render(fn(Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
 
-                Sight::make('sort', $this->translator->get('Sort')),
-                Sight::make('path', $this->translator->get('Path')),
-                Sight::make('description', $this->translator->get('Description')),
-                Sight::make('alt', $this->translator->get('Alt')),
-                Sight::make('hash', $this->translator->get('Hash')),
-                Sight::make('disk', $this->translator->get('Disk')),
-                Sight::make('group', $this->translator->get('Group')),
+                Sight::make('sort', $this->translate('Sort')),
+                Sight::make('path', $this->translate('Path')),
+                Sight::make('description', $this->translate('Description')),
+                Sight::make('alt', $this->translate('Alt')),
+                Sight::make('hash', $this->translate('Hash')),
+                Sight::make('disk', $this->translate('Disk')),
+                Sight::make('group', $this->translate('Group')),
 
-                Sight::make('created_at', $this->translator->get('Created'))
-                    ->render(fn(Attachment $attachment) => (string)$attachment->getAttribute('created_at')?->toDateTimeString()),
+                Sight::make('created_at', $this->translate('Created'))
+                    ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
-                Sight::make('updated_at', $this->translator->get('Updated'))
-                    ->render(fn(Attachment $attachment) => (string)$attachment->getAttribute('updated_at')?->toDateTimeString()),
+                Sight::make('updated_at', $this->translate('Updated'))
+                    ->render(fn(Attachment $attachment) => $attachment->updated_at->toDateTimeString()),
             ]),
         ];
     }
 
     public function delete(Attachment $attachment): RedirectResponse
     {
-        $attachment->delete();
+        $attachment->deleteOrFail();
 
-        $this->toast->success($this->translator->get('Media file deleted successfully'));
+        /** @var string $successMessage */
+        $successMessage = $this->translator->get('Media file deleted successfully');
 
-        return $this->redirector->route($this->config->get('orchid-files.routes.list'));
+        $this->toast->success($successMessage);
+
+        /** @var string $redirectListUrl */
+        $redirectListUrl = $this->config->get('orchid-files.routes.list');
+
+        return $this->redirector->route($redirectListUrl);
+    }
+
+    /**
+     * @param string $text
+     * @param array<string, string|int|float> $replace
+     * @return string
+     */
+    private function translate(string $text, array $replace = []): string
+    {
+        /** @var string $translated */
+        $translated = $this->translator->get($text, $replace);
+
+        return $translated;
     }
 }

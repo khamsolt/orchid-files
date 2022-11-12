@@ -1,10 +1,10 @@
 <?php
 
-namespace Khamsolt\Orchid\Files\Contracts\Entities;
+namespace Khamsolt\Orchid\Files\Contracts;
 
 use Orchid\Platform\ItemPermission;
 
-interface Permissible
+interface Permissions
 {
     public function accessViewFile(): iterable;
 

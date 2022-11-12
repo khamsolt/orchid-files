@@ -1,13 +1,12 @@
 <?php
 
-namespace Khamsolt\Orchid\Files\Data\Transfer;
+namespace Khamsolt\Orchid\Files;
 
-use Khamsolt\Orchid\Files\Contracts\Data\TransferObject;
 use Spatie\DataTransferObject\Attributes\MapFrom;
 use Spatie\DataTransferObject\Attributes\MapTo;
 use Spatie\DataTransferObject\DataTransferObject;
 
-class AttachmentObject extends DataTransferObject implements TransferObject
+class FileAttachmentDTO extends DataTransferObject
 {
     #[MapFrom('user_id')]
     #[MapTo('user_id')]
@@ -17,7 +16,7 @@ class AttachmentObject extends DataTransferObject implements TransferObject
     #[MapTo('original_name')]
     public string|null $originalName;
 
-    public int   |null $sort;
+    public int|null $sort;
 
     public string|null $description;
 

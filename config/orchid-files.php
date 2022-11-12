@@ -1,23 +1,39 @@
 <?php return [
-
     'table'           => 'attachments',
 
     'relation_table'  => 'attachmentable',
 
-    /**
-     *  The list route names so than used package
-     */
+    'size' => 25,
+
+    'user' => [
+        'model' => \App\Models\User::class,
+
+        'columns' => [
+            'id',
+            'email',
+            'name',
+            'surname',
+            'nickname',
+        ],
+
+        'displayed' => 'email'
+    ],
+
+    'storage' => [
+        'folder' => 'files',
+        'chars' => 3,
+        'steps' => 3
+    ],
+
     'routes' => [
-        'list' => 'platform.systems.files.list',
-        'view' => 'platform.systems.files.edit',
-        'edit' => 'platform.systems.files.view',
+        'list' => 'platform.files.list',
+        'view' => 'platform.files.edit',
+        'edit' => 'platform.files.view',
+        'upload' => 'platform.files.upload',
 
         'main' => 'platform.main'
     ],
 
-    /**
-     *
-     */
     'permissions' => [
         'titles' => [
             'group'  => 'File Manager',
@@ -39,27 +55,20 @@
         ]
     ],
 
-    /**
-     *
-     */
-    'attach' => \Khamsolt\Orchid\Files\FileService::class,
+    'presenters' => [
+        'user' => \App\Orchid\Presenters\UserPresenter::class
+    ],
 
-    /**
-     *
-     */
-    'update' => \Khamsolt\Orchid\Files\FileService::class,
+    'bind' => [
+        'attach' => \Khamsolt\Orchid\Files\FileService::class,
 
-    /**
-     *
-     */
-    'search' => \Khamsolt\Orchid\Files\SearchService::class,
+        'update' => \Khamsolt\Orchid\Files\FileService::class,
 
-    /**
-     *
-     */
-    'entities' => [
-        'attachmentable' => \Khamsolt\Orchid\Files\Entities\Attachmentable::class,
+        'upload' => \Khamsolt\Orchid\Files\FileService::class,
 
-        'permissions'    => \Khamsolt\Orchid\Files\Authorization\Permissions::class,
-    ]
+        'search' => \Khamsolt\Orchid\Files\FileRepository::class,
+
+        'attachmentable' => \Khamsolt\Orchid\Files\FileAttachment::class,
+    ],
+
 ];

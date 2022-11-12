@@ -1,6 +1,6 @@
 <?php
 
-namespace Khamsolt\Orchid\Files\Contracts\Entities;
+namespace Khamsolt\Orchid\Files\Contracts;
 
 interface Attachmentable
 {

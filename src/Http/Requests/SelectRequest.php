@@ -6,6 +6,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
+/**
+ * @property int[] $attachments
+ */
 class SelectRequest extends FormRequest
 {
     public function authorize(): bool
@@ -15,18 +18,25 @@ class SelectRequest extends FormRequest
 
     public function rules(): array
     {
+        /** @var string $table */
+        $table = config('orchid-files.table');
+
         return [
             'attachments' => ['required', 'array', 'filled'],
-            'attachments.*' => ['required', 'numeric', Rule::exists(config('orchid-files.table'), 'id')],
+            'attachments.*' => ['required', 'numeric', Rule::exists($table, 'id')],
             'url' => ['required', 'url']
         ];
     }
 
-    public function getFirst(): ?int
+    public function getFirst(): int
     {
+        /** @var string[] $files */
         $files = $this->post('attachments');
 
-        return (int)Arr::first($files);
+        /** @var string $fileId */
+        $fileId = Arr::first($files);
+
+        return (int)$fileId;
     }
 
     protected function prepareForValidation(): void

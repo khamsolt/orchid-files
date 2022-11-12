@@ -20,7 +20,7 @@
         "php": "^8.1",
         "spatie/data-transfer-object": "^3.7",
         "illuminate/contracts": "^9.0",
-        "orchid/platform": "^12.1"
+        "orchid/platform": "^13.3"
     },
     "require-dev": {
         "nunomaduro/collision": "^6.0",

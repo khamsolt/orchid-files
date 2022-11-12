@@ -1,8 +1,10 @@
 <?php
 
-namespace Khamsolt\Orchid\Files\Entities;
+namespace Khamsolt\Orchid\Files;
 
-class Attachmentable implements \Khamsolt\Orchid\Files\Contracts\Entities\Attachmentable
+use Khamsolt\Orchid\Files\Contracts\Attachmentable;
+
+class FileAttachment implements Attachmentable
 {
     public function getAssigmentType(): string
     {
