@@ -34,22 +34,21 @@ class FileServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                FilesInstallCommand::class
+                FilesInstallCommand::class,
             ]);
 
             $this->publishes([
-                dirname(__DIR__) . '/database/migrations' => database_path('migrations')
+                dirname(__DIR__) . '/database/migrations' => database_path('migrations'),
             ], 'migrations');
 
             $this->publishes([
-                dirname(__DIR__) . '/config/orchid-files.php' => config_path('orchid-files.php')
+                dirname(__DIR__) . '/config/orchid-files.php' => config_path('orchid-files.php'),
             ], 'config');
 
             $this->publishes([
-                dirname(__DIR__) . '/resources/views' => resource_path('views/vendor/orchid_files')
+                dirname(__DIR__) . '/resources/views' => resource_path('views/vendor/orchid_files'),
             ], 'views');
         }
-
     }
 
     public function provides(): array

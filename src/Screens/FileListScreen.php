@@ -2,13 +2,11 @@
 
 namespace Khamsolt\Orchid\Files\Screens;
 
-
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
-use Illuminate\Validation\ValidationException;
 use Khamsolt\Orchid\Files\Contracts\Permissions;
 use Khamsolt\Orchid\Files\Contracts\Repository as FileRepository;
 use Khamsolt\Orchid\Files\Http\Requests\SelectRequest;
@@ -55,7 +53,7 @@ class FileListScreen extends Screen
             'permissible' => $this->permissible,
             'mode' => $request->get('mode'),
             'redirect' => $request->get('redirect'),
-            'router' => $this->redirector->getUrlGenerator()
+            'router' => $this->redirector->getUrlGenerator(),
         ];
     }
 
@@ -84,13 +82,13 @@ class FileListScreen extends Screen
                 ->type(new Color('default'))
                 ->icon('add')
                 ->route($uploadRoute)
-                ->canSee(!$this->redirect && !$this->mode),
+                ->canSee(! $this->redirect && ! $this->mode),
 
             Button::make('Attach')
                 ->type(new Color('primary'))
                 ->icon('check')
                 ->method('attaching', [
-                    'url' => $this->redirect
+                    'url' => $this->redirect,
                 ])
                 ->canSee($this->redirect && $this->mode),
         ];
@@ -104,7 +102,7 @@ class FileListScreen extends Screen
 
                 Cropper::make('upload.image')
                     ->staticBackdrop()
-                    ->title('Image')
+                    ->title('Image'),
             ])->canSee($this->user->hasAnyAccess($this->permissible->accessFileUploads())),
 
             LayoutFactory::blank([

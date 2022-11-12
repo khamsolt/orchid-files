@@ -4,7 +4,6 @@ namespace Khamsolt\Orchid\Files\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
-use Khamsolt\Orchid\Files\FileGenerator;
 use Khamsolt\Orchid\Files\FileServiceProvider;
 
 class FilesInstallCommand extends Command

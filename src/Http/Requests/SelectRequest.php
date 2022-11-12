@@ -24,7 +24,7 @@ class SelectRequest extends FormRequest
         return [
             'attachments' => ['required', 'array', 'filled'],
             'attachments.*' => ['required', 'numeric', Rule::exists($table, 'id')],
-            'url' => ['required', 'url']
+            'url' => ['required', 'url'],
         ];
     }
 
@@ -41,6 +41,6 @@ class SelectRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        !is_array($this->attachments) && $this->merge(['attachments' => [$this->attachments]]);
+        ! is_array($this->attachments) && $this->merge(['attachments' => [$this->attachments]]);
     }
 }

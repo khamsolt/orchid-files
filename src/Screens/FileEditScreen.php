@@ -34,8 +34,7 @@ class FileEditScreen extends Screen
         private readonly Redirector  $redirector,
         private readonly Translator  $translator,
         private readonly Toast       $toast
-    )
-    {
+    ) {
     }
 
     public function query(Attachment $attachment): iterable
@@ -48,7 +47,7 @@ class FileEditScreen extends Screen
             'id' => $attachment->getKey(),
             'alt' => $attachment->getAttribute('alt') ?? $attachment->getAttribute('original_name'),
             'url' => $attachment->url(),
-            'isImage' => $attachment->isImage()
+            'isImage' => $attachment->isImage(),
         ];
     }
 

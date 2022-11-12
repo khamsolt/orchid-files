@@ -17,7 +17,6 @@ class FileSettings
         $user = $attachment->getRelation('user');
 
         if (class_exists($className)) {
-
             /** @var Presenter $presenter */
             $presenter = new $className($user);
 

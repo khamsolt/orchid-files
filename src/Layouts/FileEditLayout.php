@@ -2,7 +2,6 @@
 
 namespace Khamsolt\Orchid\Files\Layouts;
 
-
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Arr;
 use Khamsolt\Orchid\Files\Models\Attachment;
@@ -67,7 +66,7 @@ class FileEditLayout extends Rows
 
         return [
             Input::make('attachment.source')
-                ->required(!$attachment->exists)
+                ->required(! $attachment->exists)
                 ->title('File')
                 ->type('file')
                 ->disabled($attachment->exists),

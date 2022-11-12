@@ -6,7 +6,6 @@ use Khamsolt\Orchid\Files\Models\Attachment;
 use Orchid\Screen\Contracts\Personable;
 use Orchid\Support\Presenter;
 
-
 /**
  * @property-read Attachment $entity
  */
@@ -28,7 +27,7 @@ class FilePresenter extends Presenter implements Personable
         $viewUrl = config('orchid-files.routes.view');
 
         return route($viewUrl, [
-            'attachment' => $this->entity->id
+            'attachment' => $this->entity->id,
         ]);
     }
 

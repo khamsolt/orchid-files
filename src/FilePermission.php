@@ -19,8 +19,7 @@ class FilePermission implements Permissions
     public function __construct(
         private readonly Repository $config,
         private readonly Translator $translator
-    )
-    {
+    ) {
         /** @var array<string, array<string, mixed>> $settings */
         $settings = $this->config->get('orchid-files.permissions');
 

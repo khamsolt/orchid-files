@@ -6,7 +6,6 @@ use Illuminate\Support\Carbon;
 use Orchid\Metrics\Chartable;
 use Orchid\Screen\AsSource;
 
-
 /**
  * @property int $id
  * @property string $name

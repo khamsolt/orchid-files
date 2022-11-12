@@ -14,7 +14,6 @@ use League\Flysystem\FilesystemException;
 use Orchid\Attachment\File;
 use Throwable;
 
-
 class FileService implements Updatable, Attachable, Uploadable
 {
     public function sync(string $modelType, int $modelId, array $ids, ?string $group = null): void
@@ -22,8 +21,10 @@ class FileService implements Updatable, Attachable, Uploadable
         $query = Attachmentable::query()
             ->where('attachmentable_type', '=', $modelType)
             ->where('attachmentable_id', '=', $modelId)
-            ->when(!empty($group),
-                fn(Builder $builder) => $builder->where('group', '=', $group));
+            ->when(
+                ! empty($group),
+                fn (Builder $builder) => $builder->where('group', '=', $group)
+            );
 
         $searchDuplicateQuery = $query->clone()->whereIn('attachment_id', $ids);
 
@@ -44,7 +45,7 @@ class FileService implements Updatable, Attachable, Uploadable
 
     public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool
     {
-        $data = array_map(static fn(int $attachmentId) => [
+        $data = array_map(static fn (int $attachmentId) => [
             'attachmentable_type' => $type,
             'attachmentable_id' => $id,
             'attachment_id' => $attachmentId,
@@ -73,7 +74,7 @@ class FileService implements Updatable, Attachable, Uploadable
             'attachmentable_type' => $type,
             'attachmentable_id' => $id,
             'attachment_id' => $attachmentId,
-            'group' => $group
+            'group' => $group,
         ];
 
         $model = new Attachmentable();
@@ -124,7 +125,7 @@ class FileService implements Updatable, Attachable, Uploadable
 
         $data = array_filter($dto->except('user_id')->toArray());
 
-        if (!empty($data)) {
+        if (! empty($data)) {
             $attachment->fill($data);
             $attachment->setAttribute('user_id', $dto->userId);
             $attachment->saveOrFail();

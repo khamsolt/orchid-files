@@ -60,7 +60,7 @@ class FileViewScreen extends Screen
             'id' => $attachment->getKey(),
             'alt' => $attachment->getAttribute('alt') ?? $attachment->getAttribute('original_name'),
             'url' => $attachment->url(),
-            'isImage' => $attachment->isImage()
+            'isImage' => $attachment->isImage(),
         ];
     }
 
@@ -92,7 +92,6 @@ class FileViewScreen extends Screen
 
     public function layout(): iterable
     {
-
         return [
             LayoutFactory::component(Preview::class)
                 ->canSee($this->isImage),
@@ -122,7 +121,7 @@ class FileViewScreen extends Screen
                 Sight::make('extension', $this->translate('Extension')),
 
                 Sight::make('size', $this->translate('Size'))
-                    ->render(fn(Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
+                    ->render(fn (Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
 
                 Sight::make('sort', $this->translate('Sort')),
                 Sight::make('path', $this->translate('Path')),
@@ -133,10 +132,10 @@ class FileViewScreen extends Screen
                 Sight::make('group', $this->translate('Group')),
 
                 Sight::make('created_at', $this->translate('Created'))
-                    ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+                    ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
                 Sight::make('updated_at', $this->translate('Updated'))
-                    ->render(fn(Attachment $attachment) => $attachment->updated_at->toDateTimeString()),
+                    ->render(fn (Attachment $attachment) => $attachment->updated_at->toDateTimeString()),
             ]),
         ];
     }

@@ -48,10 +48,10 @@ class FileListLayout extends Table
             TD::make('id', '#ID')->sort()->defaultHidden()->filter(TD::FILTER_NUMERIC),
 
             TD::make('original_name', 'Original Name')->sort()->filter(TD::FILTER_TEXT)
-                ->render(fn(Attachment $attachment) => new Thumbnail($attachment, $this->generator->route($viewRoute, $attachment->getKey()))),
+                ->render(fn (Attachment $attachment) => new Thumbnail($attachment, $this->generator->route($viewRoute, $attachment->getKey()))),
 
             TD::make('user_id', 'User')->sort()->filter(Relation::make()->fromModel(User::class, 'id')->displayAppend('list_item'))
-                ->render(fn(Attachment $attachment) => new Persona($this->filePresenter->resolveUserPresenter($attachment, $presenters))),
+                ->render(fn (Attachment $attachment) => new Persona($this->filePresenter->resolveUserPresenter($attachment, $presenters))),
 
             TD::make('name', 'Name')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
 
@@ -60,7 +60,7 @@ class FileListLayout extends Table
             TD::make('extension', 'Extension')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
 
             TD::make('size', 'Size')->sort()->filter(TD::FILTER_NUMERIC)
-                ->render(fn(Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
+                ->render(fn (Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
 
             TD::make('sort', 'Sort')->sort()->defaultHidden()->filter(TD::FILTER_NUMERIC),
 
@@ -77,20 +77,22 @@ class FileListLayout extends Table
             TD::make('group', 'Group')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
 
             TD::make('created_at', 'Created')->sort()->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+                ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
             TD::make('updated_at', 'Updated')->sort()->defaultHidden()->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+                ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
             TD::make('Actions')->cantHide()->canSee($this->user()
-                ->hasAnyAccess(array_merge(
-                        (array)$this->permissible()->accessViewFile(),
-                        (array)$this->permissible()->accessFileUpdates())
+                ->hasAnyAccess(
+                    array_merge(
+                    (array)$this->permissible()->accessViewFile(),
+                    (array)$this->permissible()->accessFileUpdates()
+                )
                 ))
                 ->align(TD::ALIGN_CENTER)
                 ->width('100px')
                 ->render(
-                    fn(Attachment $attachment) => DropDown::make()
+                    fn (Attachment $attachment) => DropDown::make()
                         ->icon('options-vertical')
                         ->list([
                             Link::make()
@@ -108,7 +110,7 @@ class FileListLayout extends Table
                             Button::make('Delete')
                                 ->icon('trash')
                                 ->confirm('Attention, the file you selected will be deleted.')
-                                ->method('delete', ['attachment' => $attachment->id])
+                                ->method('delete', ['attachment' => $attachment->id]),
                         ])
                 ),
         ]);
@@ -171,7 +173,7 @@ class FileListLayout extends Table
     protected function checkbox(): Cell
     {
         return TD::make()
-            ->render(fn(Attachment $attachment): CheckBox => CheckBox::make('attachments[]')
+            ->render(fn (Attachment $attachment): CheckBox => CheckBox::make('attachments[]')
                 ->value($attachment->getKey())
                 ->checked(false));
     }
@@ -179,7 +181,7 @@ class FileListLayout extends Table
     protected function radio(): Cell
     {
         return TD::make()
-            ->render(fn(Attachment $attachment): Radio => Radio::make('attachments')
+            ->render(fn (Attachment $attachment): Radio => Radio::make('attachments')
                 ->value($attachment->getKey())
                 ->checked(false));
     }
