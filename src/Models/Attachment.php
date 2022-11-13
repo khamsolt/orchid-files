@@ -7,14 +7,17 @@ use Orchid\Metrics\Chartable;
 use Orchid\Screen\AsSource;
 
 /**
- * @property int $id
- * @property string $name
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read string $mime
+ * @property-read string $extension
+ * @property-read string $path
  * @property string $original_name
- * @property string $mime
- * @property string $extension
- * @property string $disk
- * @property string $hash
- * @property string $size
+ * @property string|null $description
+ * @property string|null $alt
+ * @property string|null $disk
+ * @property string|null $hash
+ * @property int $size
  * @property int|null $sort
  * @property string|null $group
  * @property Carbon $created_at
