@@ -53,16 +53,16 @@ it('can update attachment information', function () {
 
     $file = UploadedFile::fake()->create('file.pdf');
 
-    $uploadManager  = $this->app->make(Uploadable::class);
-    $attachment     = $uploadManager->upload($file, []);
+    $uploadManager = $this->app->make(Uploadable::class);
+    $attachment = $uploadManager->upload($file, []);
     $updaterManager = $this->app->make(Updatable::class);
 
     $updaterManager->update($attachment->id, [
         'original_name' => 'Test Name.pdf',
-        'sort'          => 10,
-        'description'   => 'test description',
-        'alt'           => 'test alt',
-        'group'         => 'test group',
+        'sort' => 10,
+        'description' => 'test description',
+        'alt' => 'test alt',
+        'group' => 'test group',
     ]);
 
     $replicate = $attachment->replicate();
@@ -82,5 +82,3 @@ it('can update attachment information', function () {
     expect($attachment->extension)->toEqual($fileGenerator->extension());
     expect($attachment->path)->toEqual(Str::finish($fileGenerator->path(), '/'));
 });
-
-

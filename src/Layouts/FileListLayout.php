@@ -85,9 +85,9 @@ class FileListLayout extends Table
             TD::make('Actions')->cantHide()->canSee($this->user()
                 ->hasAnyAccess(
                     array_merge(
-                    (array)$this->permissible()->accessViewFile(),
-                    (array)$this->permissible()->accessFileUpdates()
-                )
+                        (array)$this->permissible()->accessViewFile(),
+                        (array)$this->permissible()->accessFileUpdates()
+                    )
                 ))
                 ->align(TD::ALIGN_CENTER)
                 ->width('100px')

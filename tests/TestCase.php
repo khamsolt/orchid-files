@@ -45,7 +45,7 @@ class TestCase extends Orchestra
 
         Artisan::call('vendor:publish', [
             '--provider' => FoundationServiceProvider::class,
-            '--tag' => 'config'
+            '--tag' => 'config',
         ]);
 
         Artisan::call('migrate', ['--force' => true]);
