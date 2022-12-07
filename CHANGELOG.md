@@ -9,6 +9,13 @@ All notable changes to `orchid-files` will be documented in this file.
 ### Added
 
 - Tests
+- Added FileFuture class to simplify integration with external sources
+- PHPSTAN
+- PHPCSFIX
+
+### Fix
+
+- TestCase class environment
 
 ---
 

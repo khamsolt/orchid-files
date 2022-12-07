@@ -21,7 +21,7 @@ class Thumbnail extends Component
     {
         $this->title = $attachment->original_name;
         $this->image = $attachment->thumbnail();
-        $this->subTitle = $attachment->hash;
+        $this->subTitle = $attachment->hash ?? '-';
         $this->url = $url;
     }
 

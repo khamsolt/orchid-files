@@ -18,7 +18,7 @@ class FilePresenter extends Presenter implements Personable
 
     public function subTitle(): string
     {
-        return $this->entity->hash;
+        return $this->entity->hash ?? '-';
     }
 
     public function url(): string

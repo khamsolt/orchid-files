@@ -9,9 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Khamsolt\Orchid\Files\Contracts\Permissions;
 use Khamsolt\Orchid\Files\Contracts\Repository as FileRepository;
+use Khamsolt\Orchid\Files\Enums\Type;
 use Khamsolt\Orchid\Files\Http\Requests\SelectRequest;
 use Khamsolt\Orchid\Files\Layouts\FileListLayout;
 use Khamsolt\Orchid\Files\Models\Attachment;
+use Khamsolt\Orchid\Files\Orchid\Actions\Button as CKEditorButtonHandler;
 use Orchid\Alert\Toast;
 use Orchid\Platform\Models\User;
 use Orchid\Screen\Actions\Button;
@@ -26,35 +28,22 @@ class FileListScreen extends Screen
 {
     public User $user;
 
-    public ?string $mode;
+    public Type|null $type;
 
-    public ?string $redirect;
+    public string|null $mode;
+
+    public string|null $redirect;
 
     public function __construct(
+        private readonly Request        $request,
         private readonly Repository     $config,
         private readonly Permissions    $permissible,
         private readonly FileRepository $fileRepository,
         private readonly Redirector     $redirector,
         private readonly Translator     $translator,
         private readonly Toast          $toast
-    ) {
-    }
-
-    public function query(Request $request): iterable
+    )
     {
-        $user = $request->user();
-
-        $files = $this->fileRepository->paginate();
-
-        return [
-            'files' => $files,
-            'user' => $user,
-            'config' => $this->config,
-            'permissible' => $this->permissible,
-            'mode' => $request->get('mode'),
-            'redirect' => $request->get('redirect'),
-            'router' => $this->redirector->getUrlGenerator(),
-        ];
     }
 
     public function name(): ?string
@@ -82,7 +71,7 @@ class FileListScreen extends Screen
                 ->type(new Color('default'))
                 ->icon('add')
                 ->route($uploadRoute)
-                ->canSee(! $this->redirect && ! $this->mode),
+                ->canSee(!$this->redirect && !$this->mode),
 
             Button::make('Attach')
                 ->type(new Color('primary'))
@@ -96,6 +85,10 @@ class FileListScreen extends Screen
 
     public function layout(): iterable
     {
+        $type = $this->request->get('type');
+
+        $funcNum = $this->request->get('CKEditorFuncNum');
+
         return [
             LayoutFactory::rows([
                 Upload::make('upload.files')->title('Quick Loading'),
@@ -105,9 +98,15 @@ class FileListScreen extends Screen
                     ->title('Image'),
             ])->canSee($this->user->hasAnyAccess($this->permissible->accessFileUploads())),
 
-            LayoutFactory::blank([
-                new FileListLayout($this->redirector->getUrlGenerator()),
-            ]),
+            LayoutFactory::block(new FileListLayout($this->redirector->getUrlGenerator()))
+                ->vertical()
+                ->commands([
+                    CKEditorButtonHandler::make('Select')
+                        ->canSee(!empty($type))
+                        ->set('data-ckeditor-func-num', $funcNum)
+                        ->icon('loop')
+                        ->type(new Color('primary'))
+                ]),
         ];
     }
 
@@ -138,5 +137,33 @@ class FileListScreen extends Screen
         $successMessage = $this->translator->get('Media file deleted successfully');
 
         $this->toast->success($successMessage);
+    }
+
+    public function query(Request $request): iterable
+    {
+        $user    = $request->user();
+
+        $type    = $this->resolveType($request);
+
+        $files   = $this->fileRepository->paginate($type);
+
+        return [
+            'files' => $files,
+            'type' => $type,
+            'user' => $user,
+            'config' => $this->config,
+            'permissible' => $this->permissible,
+            'mode' => $request->get('mode'),
+            'redirect' => $request->get('redirect'),
+            'router' => $this->redirector->getUrlGenerator(),
+        ];
+    }
+
+    private function resolveType(Request $request): ?Type
+    {
+        /** @var string|null $type */
+        $type = $request->get('type');
+
+        return is_string($type) ? Type::tryFrom($type) : null;
     }
 }

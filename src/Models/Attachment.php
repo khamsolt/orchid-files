@@ -28,6 +28,8 @@ class Attachment extends \Orchid\Attachment\Models\Attachment
     use AsSource;
     use Chartable;
 
+    public const IMAGE_EXTENSIONS = ['gif', 'jpe', 'jpeg', 'jpg', 'svg', 'ico', 'png'];
+
     public const GROUP_THUMBNAIL = 'thumbnail';
 
     protected $allowedFilters = [
@@ -74,8 +76,6 @@ class Attachment extends \Orchid\Attachment\Models\Attachment
 
     public function isImage(): bool
     {
-        $exts = ['gif', 'jpe', 'jpeg', 'jpg', 'svg', 'ico', 'png'];
-
-        return in_array(strtolower($this->extension), $exts);
+        return in_array(strtolower($this->extension), self::IMAGE_EXTENSIONS);
     }
 }

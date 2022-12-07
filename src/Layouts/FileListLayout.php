@@ -182,6 +182,7 @@ class FileListLayout extends Table
     {
         return TD::make()
             ->render(fn (Attachment $attachment): Radio => Radio::make('attachments')
+                ->set('data-url', $attachment->url())
                 ->value($attachment->getKey())
                 ->checked(false));
     }
