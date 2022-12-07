@@ -35,7 +35,7 @@ final class FileFeatures
         }
 
         foreach ($integrations as $integration) {
-            if (!is_callable($integration)) {
+            if (! is_callable($integration)) {
                 continue;
             }
 

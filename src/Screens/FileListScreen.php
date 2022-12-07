@@ -42,8 +42,7 @@ class FileListScreen extends Screen
         private readonly Redirector     $redirector,
         private readonly Translator     $translator,
         private readonly Toast          $toast
-    )
-    {
+    ) {
     }
 
     public function name(): ?string
@@ -71,7 +70,7 @@ class FileListScreen extends Screen
                 ->type(new Color('default'))
                 ->icon('add')
                 ->route($uploadRoute)
-                ->canSee(!$this->redirect && !$this->mode),
+                ->canSee(! $this->redirect && ! $this->mode),
 
             Button::make('Attach')
                 ->type(new Color('primary'))
@@ -102,10 +101,10 @@ class FileListScreen extends Screen
                 ->vertical()
                 ->commands([
                     CKEditorButtonHandler::make('Select')
-                        ->canSee(!empty($type))
+                        ->canSee(! empty($type))
                         ->set('data-ckeditor-func-num', $funcNum)
                         ->icon('loop')
-                        ->type(new Color('primary'))
+                        ->type(new Color('primary')),
                 ]),
         ];
     }
@@ -141,11 +140,11 @@ class FileListScreen extends Screen
 
     public function query(Request $request): iterable
     {
-        $user    = $request->user();
+        $user = $request->user();
 
-        $type    = $this->resolveType($request);
+        $type = $this->resolveType($request);
 
-        $files   = $this->fileRepository->paginate($type);
+        $files = $this->fileRepository->paginate($type);
 
         return [
             'files' => $files,

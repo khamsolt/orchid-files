@@ -22,13 +22,13 @@ class Button extends Action
      * @var array
      */
     protected $attributes = [
-        'class'      => 'btn btn-link',
+        'class' => 'btn btn-link',
         'novalidate' => false,
-        'icon'       => null,
-        'action'     => null,
+        'icon' => null,
+        'action' => null,
         'parameters' => [],
-        'turbo'      => true,
-        'form'       => 'post-form',
+        'turbo' => true,
+        'form' => 'post-form',
     ];
 
     /**

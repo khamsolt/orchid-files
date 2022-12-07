@@ -20,8 +20,7 @@ class FileRepository implements Repository
             ->defaultSort('created_at', 'desc');
 
         if ($type !== null) {
-
-            $builder->when($type === Type::IMAGES, fn($query) => $query->whereIn('extension', Attachment::IMAGE_EXTENSIONS));
+            $builder->when($type === Type::IMAGES, fn ($query) => $query->whereIn('extension', Attachment::IMAGE_EXTENSIONS));
         }
 
         return $builder->paginate();

@@ -36,7 +36,7 @@ class TestCase extends Orchestra
     {
         $this->loadLaravelMigrations();
 
-        $this->beforeApplicationDestroyed(fn() => $this->artisan('db:wipe'));
+        $this->beforeApplicationDestroyed(fn () => $this->artisan('db:wipe'));
     }
 
     protected function getEnvironmentSetUp($app): void
