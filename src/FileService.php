@@ -22,8 +22,8 @@ class FileService implements Updatable, Attachable, Uploadable
             ->where('attachmentable_type', '=', $modelType)
             ->where('attachmentable_id', '=', $modelId)
             ->when(
-                !empty($group),
-                fn(Builder $builder) => $builder->where('group', '=', $group)
+                ! empty($group),
+                fn (Builder $builder) => $builder->where('group', '=', $group)
             );
 
         $searchDuplicateQuery = $query->clone()->whereIn('attachment_id', $ids);
@@ -45,7 +45,7 @@ class FileService implements Updatable, Attachable, Uploadable
 
     public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool
     {
-        $data = array_map(static fn(int $attachmentId) => [
+        $data = array_map(static fn (int $attachmentId) => [
             'attachmentable_type' => $type,
             'attachmentable_id' => $id,
             'attachment_id' => $attachmentId,
@@ -124,7 +124,7 @@ class FileService implements Updatable, Attachable, Uploadable
             $attachment->setAttribute('user_id', $userId);
         }
 
-        if (!empty($data)) {
+        if (! empty($data)) {
             $attachment->fill($data);
 
             $attachment->saveOrFail();
