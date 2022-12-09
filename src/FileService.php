@@ -22,8 +22,8 @@ class FileService implements Updatable, Attachable, Uploadable
             ->where('attachmentable_type', '=', $modelType)
             ->where('attachmentable_id', '=', $modelId)
             ->when(
-                ! empty($group),
-                fn (Builder $builder) => $builder->where('group', '=', $group)
+                !empty($group),
+                fn(Builder $builder) => $builder->where('group', '=', $group)
             );
 
         $searchDuplicateQuery = $query->clone()->whereIn('attachment_id', $ids);
@@ -45,7 +45,7 @@ class FileService implements Updatable, Attachable, Uploadable
 
     public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool
     {
-        $data = array_map(static fn (int $attachmentId) => [
+        $data = array_map(static fn(int $attachmentId) => [
             'attachmentable_type' => $type,
             'attachmentable_id' => $id,
             'attachment_id' => $attachmentId,
@@ -59,11 +59,9 @@ class FileService implements Updatable, Attachable, Uploadable
 
     public function update(int $id, array $data): bool
     {
-        $dto = new FileAttachmentDTO($data);
-
         $result = Attachment::query()
             ->where('id', '=', $id)
-            ->update($dto->toArray());
+            ->update($data);
 
         return (bool)$result;
     }
@@ -116,18 +114,19 @@ class FileService implements Updatable, Attachable, Uploadable
      */
     public function upload(UploadedFile $uploadedFile, array $data): Attachment
     {
-        $dto = new FileAttachmentDTO($data);
-
         $file = new File($uploadedFile);
 
-        /** @var Attachment $attachment */
         $attachment = $file->load();
 
-        $data = array_filter($dto->except('user_id')->toArray());
+        assert($attachment instanceof Attachment);
 
-        if (! empty($data)) {
+        if ($userId = $data['user_id'] ?? null) {
+            $attachment->setAttribute('user_id', $userId);
+        }
+
+        if (!empty($data)) {
             $attachment->fill($data);
-            $attachment->setAttribute('user_id', $dto->userId);
+
             $attachment->saveOrFail();
         }
 

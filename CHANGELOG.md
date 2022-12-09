@@ -4,6 +4,14 @@ All notable changes to `orchid-files` will be documented in this file.
 
 ---
 
+## 2.0.2 - 2022-12-10
+
+### Fix
+
+- Deleted DTO Layers
+
+---
+
 ## 2.0.1 - 2022-11-13
 
 ### Added
