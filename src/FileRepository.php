@@ -3,6 +3,7 @@
 namespace Khamsolt\Orchid\Files;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Khamsolt\Orchid\Files\Contracts\Repository;
 use Khamsolt\Orchid\Files\Enums\Type;
 use Khamsolt\Orchid\Files\Models\Attachment;
@@ -20,7 +21,7 @@ class FileRepository implements Repository
             ->defaultSort('created_at', 'desc');
 
         if ($type !== null) {
-            $builder->when($type === Type::IMAGES, fn ($query) => $query->whereIn('extension', Attachment::IMAGE_EXTENSIONS));
+            $builder->when($type === Type::IMAGES, fn($query) => $query->whereIn('extension', Attachment::IMAGE_EXTENSIONS));
         }
 
         return $builder->paginate();
@@ -33,5 +34,14 @@ class FileRepository implements Repository
         assert($attachment instanceof Attachment);
 
         return $attachment;
+    }
+
+    public function findMore(array $ids): Collection
+    {
+        $attachments = Attachment::with(['user'])->whereIn('attachments.id', $ids)->get();
+
+        assert($attachments instanceof Collection);
+
+        return $attachments;
     }
 }
