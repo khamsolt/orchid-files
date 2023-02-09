@@ -52,7 +52,7 @@ class FileListLayout extends Table
 
             TD::make('user_id', 'User')->sort()->filter(Relation::make()->fromModel(User::class, 'id')->displayAppend('list_item'))
                 ->render(fn (Attachment $attachment) => $attachment->getRelation('user')
-                    ? new Persona($this->filePresenter->resolveUserPresenter($attachment, $presenters)): null),
+                    ? new Persona($this->filePresenter->resolveUserPresenter($attachment, $presenters)) : null),
 
             TD::make('name', 'Name')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
 
