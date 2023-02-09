@@ -9,6 +9,7 @@ All notable changes to `orchid-files` will be documented in this file.
 ### Fix
 
 - On the list layout changed the user field 
+- On the view layout changed the user field 
 
 ---
 

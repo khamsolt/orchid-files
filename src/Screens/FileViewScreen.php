@@ -101,6 +101,9 @@ class FileViewScreen extends Screen
 
                 Sight::make('user_id', $this->translate('User'))
                     ->render(function (Attachment $attachment) {
+                        if ($attachment->getRelation('user') === null) {
+                            return null;
+                        }
                         /** @var array<string, class-string> $presenters */
                         $presenters = $this->config->get('orchid-files.presenters');
 
