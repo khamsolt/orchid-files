@@ -51,7 +51,8 @@ class FileListLayout extends Table
                 ->render(fn (Attachment $attachment) => new Thumbnail($attachment, $this->generator->route($viewRoute, $attachment->getKey()))),
 
             TD::make('user_id', 'User')->sort()->filter(Relation::make()->fromModel(User::class, 'id')->displayAppend('list_item'))
-                ->render(fn (Attachment $attachment) => new Persona($this->filePresenter->resolveUserPresenter($attachment, $presenters))),
+                ->render(fn (Attachment $attachment) => $attachment->getRelation('user')
+                    ? new Persona($this->filePresenter->resolveUserPresenter($attachment, $presenters)): null),
 
             TD::make('name', 'Name')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
 

@@ -4,6 +4,14 @@ All notable changes to `orchid-files` will be documented in this file.
 
 ---
 
+## 2.0.3 - 2023-02-09
+
+### Fix
+
+- On the list layout changed the user field 
+
+---
+
 ## 2.0.2 - 2022-12-10
 
 ### Fix
