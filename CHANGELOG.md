@@ -5,7 +5,7 @@ All notable changes to `orchid-files` will be documented in this file.
 
 ---
 
-## v2.0.3 - 2023-06-12
+## v3.0.0 - 2023-08-17
 
 ### What's Changed
 
