@@ -3,28 +3,36 @@
 namespace Khamsolt\Orchid\Files;
 
 use Illuminate\Database\Eloquent\Model;
+use Khamsolt\Orchid\Files\Contracts\Configuration;
 use Khamsolt\Orchid\Files\Models\Attachment;
 use Orchid\Support\Presenter;
 
-class FileSettings
+final class FileSettings
 {
-    public function resolveUserPresenter(Attachment $attachment, array $presenters): Presenter|int
+    public function __construct(
+        private readonly Configuration $configuration,
+    ) {
+    }
+
+    /**
+     * @param  Attachment  $attachment
+     * @return Presenter|int|string
+     */
+    public function resolveUserPresenter(Attachment $attachment): Presenter|int|string
     {
-        /** @var class-string $className */
-        $className = $presenters['user'] ?? null;
+        $className = $this->configuration->user('presenter');
 
-        /** @var Model $user */
-        $user = $attachment->getRelation('user');
+        $model = $attachment->getRelation('user');
 
-        if (class_exists($className)) {
-            /** @var Presenter $presenter */
-            $presenter = new $className($user);
-
+        if (
+            class_exists($className) &&
+            $model instanceof Model &&
+            ($presenter = new $className($model)) instanceof Presenter) {
             return $presenter;
         }
 
         /** @var int $id */
-        $id = $user->getKey();
+        $id = $model->getKey();
 
         return $id;
     }

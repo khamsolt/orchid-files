@@ -13,7 +13,7 @@ final class FileFeatures
     private static array $fileListScreenCommandsIntegrations = [];
 
     /**
-     * @param callable(Request):Action $closure
+     * @param  callable(Request):Action  $closure
      * @return void
      */
     public static function setFileListScreenCommandsIntegration(callable $closure): void
@@ -30,12 +30,8 @@ final class FileFeatures
 
         $result = [];
 
-        if (count($integrations) === 0) {
-            return $result;
-        }
-
         foreach ($integrations as $integration) {
-            if (! is_callable($integration)) {
+            if (!is_callable($integration)) {
                 continue;
             }
 

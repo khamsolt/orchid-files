@@ -2,10 +2,11 @@
 
 namespace Khamsolt\Orchid\Files\Layouts;
 
-use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Routing\UrlGenerator;
-use Illuminate\Support\Arr;
-use Khamsolt\Orchid\Files\Contracts\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Authorization;
+use Khamsolt\Orchid\Files\Contracts\Configuration;
+use Khamsolt\Orchid\Files\Enums\Action;
 use Khamsolt\Orchid\Files\Enums\Mode;
 use Khamsolt\Orchid\Files\FileSettings;
 use Khamsolt\Orchid\Files\Models\Attachment;
@@ -28,125 +29,140 @@ class FileListLayout extends Table
 
     protected readonly FileSettings $filePresenter;
 
-    public function __construct(private readonly UrlGenerator $generator)
-    {
-        $this->filePresenter = new FileSettings();
+    public function __construct(
+        private readonly User $user,
+        private readonly UrlGenerator $generator,
+        private readonly Authorization $authorization,
+        private readonly Configuration $configuration
+    ) {
+        $this->filePresenter = new FileSettings($this->configuration);
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     protected function columns(): iterable
     {
-        /** @var array<string|mixed> $config */
-        $config = $this->config()->get('orchid-files');
-
-        /** @var array<string, class-string> $presenters */
-        $presenters = $config['presenters'] ?? [];
-
-        /** @var string $viewRoute */
-        $viewRoute = Arr::get($config, 'routes.view');
-
         return array_merge($this->selection(), [
-            TD::make('id', '#ID')->sort()->defaultHidden()->filter(TD::FILTER_NUMERIC),
+            TD::make('id', '#ID')
+                ->sort()
+                ->defaultHidden()
+                ->filter(TD::FILTER_NUMERIC),
 
-            TD::make('original_name', 'Original Name')->sort()->filter(TD::FILTER_TEXT)
-                ->render(fn (Attachment $attachment) => new Thumbnail($attachment, $this->generator->route($viewRoute, $attachment->getKey()))),
+            TD::make('original_name', 'Original Name')
+                ->sort()
+                ->filter()
+                ->render(fn(Attachment $attachment) => new Thumbnail(
+                    $attachment,
+                    $this->generator->route($this->configuration->route(Action::VIEW), $attachment->getKey())
+                )),
 
-            TD::make('user_id', 'User')->sort()->filter(Relation::make()->fromModel(User::class, 'id')->displayAppend('list_item'))
-                ->render(fn (Attachment $attachment) => $attachment->getRelation('user')
-                    ? new Persona($this->filePresenter->resolveUserPresenter($attachment, $presenters)) : null),
+            TD::make('user_id', 'User')
+                ->sort()
+                ->filter(
+                    Relation::make()
+                        ->fromModel(User::class, 'id')
+                        ->displayAppend('list_item')
+                )
+                ->render(
+                    fn(Attachment $attachment) => $attachment->getRelation('user')
+                        ? new Persona($this->filePresenter->resolveUserPresenter($attachment))
+                        : null
+                ),
 
-            TD::make('name', 'Name')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('name', 'Name')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('mime', 'Mime')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('mime', 'Mime')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('extension', 'Extension')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('extension', 'Extension')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('size', 'Size')->sort()->filter(TD::FILTER_NUMERIC)
-                ->render(fn (Attachment $attachment) => $attachment->sizeToKb() . ' Kb'),
+            TD::make('size', 'Size')
+                ->sort()
+                ->filter(TD::FILTER_NUMERIC)
+                ->render(fn(Attachment $attachment) => $attachment->sizeToKb().' Kb'),
 
-            TD::make('sort', 'Sort')->sort()->defaultHidden()->filter(TD::FILTER_NUMERIC),
+            TD::make('sort', 'Sort')
+                ->sort()
+                ->defaultHidden()
+                ->filter(TD::FILTER_NUMERIC),
 
-            TD::make('path', 'Path')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('path', 'Path')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('description', 'Description')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('description', 'Description')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('alt', 'Alt')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('alt', 'Alt')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('hash', 'Hash')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('hash', 'Hash')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('disk', 'Disk')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('disk', 'Disk')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('group', 'Group')->sort()->defaultHidden()->filter(TD::FILTER_TEXT),
+            TD::make('group', 'Group')
+                ->sort()
+                ->defaultHidden()
+                ->filter(),
 
-            TD::make('created_at', 'Created')->sort()->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+            TD::make('created_at', 'Created')
+                ->sort()
+                ->filter(TD::FILTER_DATE_RANGE)
+                ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
-            TD::make('updated_at', 'Updated')->sort()->defaultHidden()->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+            TD::make('updated_at', 'Updated')
+                ->sort()
+                ->defaultHidden()
+                ->filter(TD::FILTER_DATE_RANGE)
+                ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
-            TD::make('Actions')->cantHide()->canSee($this->user()
-                ->hasAnyAccess(
-                    array_merge(
-                        (array)$this->permissible()->accessViewFile(),
-                        (array)$this->permissible()->accessFileUpdates()
-                    )
-                ))
+            TD::make('Actions')
+                ->cantHide()
                 ->align(TD::ALIGN_CENTER)
                 ->width('100px')
-                ->render(
-                    fn (Attachment $attachment) => DropDown::make()
-                        ->icon('options-vertical')
-                        ->list([
-                            Link::make()
-                                ->name('View')
-                                ->route($this->resolveViewRoute($config), ['attachment' => $attachment->id])
-                                ->icon('eye')
-                                ->canSee($this->user()->hasAnyAccess($this->permissible()->accessViewFile())),
+                ->render(fn(Attachment $attachment) => DropDown::make()
+                    ->icon('bs.list')
+                    ->list([
+                        Link::make()
+                            ->name('View')
+                            ->route($this->configuration->route(Action::VIEW), ['attachment' => $attachment->id])
+                            ->icon('bs.eye')
+                            ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::VIEW))),
 
-                            Link::make()
-                                ->name('Edit')
-                                ->route($this->resolveEditRoute($config), ['attachment' => $attachment->id])
-                                ->icon('pencil')
-                                ->canSee($this->user()->hasAnyAccess($this->permissible()->accessFileUpdates())),
+                        Link::make()
+                            ->name('Edit')
+                            ->route($this->configuration->route(Action::EDIT), ['attachment' => $attachment->id])
+                            ->icon('bs.pencil')
+                            ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::EDIT))),
 
-                            Button::make('Delete')
-                                ->icon('trash')
-                                ->confirm('Attention, the file you selected will be deleted.')
-                                ->method('delete', ['attachment' => $attachment->id]),
-                        ])
+                        Button::make('Delete')
+                            ->icon('bs.trash')
+                            ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::DELETE)))
+                            ->confirm('Attention, the file you selected will be deleted.')
+                            ->method('delete', ['attachment' => $attachment->id]),
+                    ])
                 ),
         ]);
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     * @return string
-     */
-    protected function resolveViewRoute(array $data): string
-    {
-        /** @var string $route */
-        $route = Arr::get($data, 'routes.view');
-
-        return $route;
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     * @return string
-     */
-    protected function resolveEditRoute(array $data): string
-    {
-        /** @var string $route */
-        $route = Arr::get($data, 'routes.edit');
-
-        return $route;
-    }
-
-    protected function config(): Repository
-    {
-        /** @var Repository $result */
-        $result = $this->query->get('config');
-
-        return $result;
     }
 
     protected function selection(): array
@@ -174,7 +190,7 @@ class FileListLayout extends Table
     protected function checkbox(): Cell
     {
         return TD::make()
-            ->render(fn (Attachment $attachment): CheckBox => CheckBox::make('attachments[]')
+            ->render(fn(Attachment $attachment): CheckBox => CheckBox::make('attachments[]')
                 ->value($attachment->getKey())
                 ->checked(false));
     }
@@ -182,25 +198,9 @@ class FileListLayout extends Table
     protected function radio(): Cell
     {
         return TD::make()
-            ->render(fn (Attachment $attachment): Radio => Radio::make('attachments')
+            ->render(fn(Attachment $attachment): Radio => Radio::make('attachments')
                 ->set('data-url', $attachment->url())
                 ->value($attachment->getKey())
                 ->checked(false));
-    }
-
-    protected function user(): User
-    {
-        /** @var User $result */
-        $result = $this->query->get('user');
-
-        return $result;
-    }
-
-    protected function permissible(): Permissions
-    {
-        /** @var Permissions $result */
-        $result = $this->query->get('permissible');
-
-        return $result;
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 /**
  * @property int[] $attachments
  */
-class SelectRequest extends FormRequest
+final class SelectRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -36,11 +36,15 @@ class SelectRequest extends FormRequest
         /** @var string $fileId */
         $fileId = Arr::first($files);
 
-        return (int)$fileId;
+        return (int) $fileId;
     }
 
     protected function prepareForValidation(): void
     {
-        ! is_array($this->attachments) && $this->merge(['attachments' => [$this->attachments]]);
+        !is_array($this->attachments) && $this->merge([
+            'attachments' => [
+                $this->attachments
+            ]
+        ]);
     }
 }

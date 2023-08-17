@@ -2,6 +2,9 @@
 
 namespace Khamsolt\Orchid\Files\Exceptions;
 
-class AttachedFileException extends FileException
+use Exception;
+
+class FileException extends Exception
 {
+
 }

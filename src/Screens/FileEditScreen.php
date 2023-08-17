@@ -3,13 +3,15 @@
 namespace Khamsolt\Orchid\Files\Screens;
 
 use Illuminate\Contracts\Config\Repository;
-use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Redirector;
-use Khamsolt\Orchid\Files\Contracts\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Authorization;
+use Khamsolt\Orchid\Files\Contracts\Configuration;
+use Khamsolt\Orchid\Files\Contracts\Translation;
 use Khamsolt\Orchid\Files\Contracts\Updatable;
 use Khamsolt\Orchid\Files\Contracts\Uploadable;
+use Khamsolt\Orchid\Files\Enums\Action;
 use Khamsolt\Orchid\Files\Http\Requests\UpdateRequest;
 use Khamsolt\Orchid\Files\Http\Requests\UploadRequest;
 use Khamsolt\Orchid\Files\Layouts\FileEditLayout;
@@ -21,19 +23,22 @@ use Orchid\Screen\LayoutFactory;
 use Orchid\Screen\Screen;
 use Orchid\Support\Color;
 
-class FileEditScreen extends Screen
+final class FileEditScreen extends Screen
 {
-    public bool $exists = true;
-    public bool $isImage = false;
+    public ?Attachment $attachment = null;
+
+    public ?bool $exists = true;
+    public ?bool $isImage = false;
 
     public function __construct(
-        private readonly Permissions $permissible,
-        private readonly Repository  $config,
-        private readonly Updatable   $updateService,
-        private readonly Uploadable  $uploadService,
-        private readonly Redirector  $redirector,
-        private readonly Translator  $translator,
-        private readonly Toast       $toast
+        private readonly Authorization $permissible,
+        private readonly Repository $config,
+        private readonly Configuration $configuration,
+        private readonly Updatable $updateService,
+        private readonly Uploadable $uploadService,
+        private readonly Redirector $redirector,
+        private readonly Translation $translator,
+        private readonly Toast $toast
     ) {
     }
 
@@ -53,12 +58,24 @@ class FileEditScreen extends Screen
 
     public function permission(): ?iterable
     {
-        return $this->permissible->accessFileUpdates();
+        return $this->permissible->authorize(Action::EDIT);
     }
 
     public function commandBar(): iterable
     {
-        return [];
+        $method = $this->exists ? 'update' : 'upload';
+
+        return [
+            Button::make()
+                ->icon('bs.file-arrow-up-fill')
+                ->name(ucfirst($method))
+                ->method($method),
+        ];
+    }
+
+    public function name(): ?string
+    {
+        return 'File';
     }
 
     public function layout(): iterable
@@ -69,15 +86,15 @@ class FileEditScreen extends Screen
             LayoutFactory::component(Preview::class)
                 ->canSee($this->isImage),
             LayoutFactory::block([
-                FileEditLayout::class,
+                new FileEditLayout($this->attachment, $this->configuration),
             ])
                 ->title('File Information')
                 ->description('Basic information about the file')
                 ->commands([
                     Button::make()
-                        ->type(new Color('default'))
-                        ->icon('pencil')
-                        ->name('Save')
+                        ->type(Color::DEFAULT)
+                        ->icon('bs.file-arrow-up')
+                        ->name(ucfirst($method))
                         ->method($method),
                 ]),
         ];
@@ -88,11 +105,6 @@ class FileEditScreen extends Screen
         return 'Be careful when modifying data in the file because some data are important components, consult with the developer before making changes.';
     }
 
-    public function name(): ?string
-    {
-        return 'File';
-    }
-
     public function update(Attachment $attachment, UpdateRequest $request): RedirectResponse
     {
         /** @var array<string, mixed> $data */
@@ -100,15 +112,9 @@ class FileEditScreen extends Screen
 
         $this->updateService->update($attachment->id, $data);
 
-        /** @var string $successMessage */
-        $successMessage = $this->translator->get('File Information Updated');
+        $this->toast->success($this->translator->get('File Information Updated'));
 
-        $this->toast->success($successMessage);
-
-        /** @var string $viewRoute */
-        $viewRoute = $this->config->get('orchid-files.routes.view');
-
-        return $this->redirector->route($viewRoute, $attachment->id);
+        return $this->redirector->route($this->configuration->route(Action::VIEW), $attachment->id);
     }
 
     public function upload(UploadRequest $request): RedirectResponse
@@ -122,14 +128,8 @@ class FileEditScreen extends Screen
 
         $attachment = $this->uploadService->upload($file, $data);
 
-        /** @var string $successMessage */
-        $successMessage = $this->translator->get('New File successfully added');
+        $this->toast->success($this->translator->get('New File successfully added'));
 
-        $this->toast->success($successMessage);
-
-        /** @var string $viewRoute */
-        $viewRoute = $this->config->get('orchid-files.routes.view');
-
-        return $this->redirector->route($viewRoute, $attachment->id);
+        return $this->redirector->route($this->configuration->route(Action::VIEW), $attachment->id);
     }
 }

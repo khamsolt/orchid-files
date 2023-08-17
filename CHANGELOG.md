@@ -9,6 +9,27 @@ All notable changes to `orchid-files` will be documented in this file.
 
 ### What's Changed
 
+#### Added
+
+- New FileAuthorize class on FilePermission instead
+- New FileConfigurator class
+-
+
+#### Changed
+
+- Added name key to group instead
+- Moved presenter to user section to the config
+- Changed keys from permissions to native string array
+- Added accesses key to permissions config
+- Changed string keys in permissions and route keys on Action enumeration
+- New binding keys added to config
+
+---
+
+## v2.0.3 - 2023-06-12
+
+### What's Changed
+
 #### Fix
 
 - On the list layout changed the user field
@@ -20,13 +41,14 @@ All notable changes to `orchid-files` will be documented in this file.
 
 **Full Changelog**: https://github.com/khamsolt/orchid-files/commits/v2.0.3
 
+---
+
 ## 2.0.3 - 2023-02-09
 
 ### Fix
 
 - On the list layout changed the user field
 - On the view layout changed the user field
-
 
 ---
 
@@ -35,7 +57,6 @@ All notable changes to `orchid-files` will be documented in this file.
 ### Fix
 
 - Deleted DTO Layers
-
 
 ---
 
@@ -52,7 +73,6 @@ All notable changes to `orchid-files` will be documented in this file.
 
 - TestCase class environment
 
-
 ---
 
 ## 2.0.0 - 2022-11-12
@@ -63,7 +83,6 @@ All notable changes to `orchid-files` will be documented in this file.
 - Added upload screen
 - Style and Phpstan fixes
 
-
 ---
 
 ## 1.0.3 - 2022-06-07
@@ -71,7 +90,6 @@ All notable changes to `orchid-files` will be documented in this file.
 ### Added
 
 - Fix File Attach
-
 
 ---
 
@@ -84,7 +102,6 @@ All notable changes to `orchid-files` will be documented in this file.
 - Initialize Command
 - New Config Keys
 
-
 ---
 
 ## 1.0.1 - 2022-04-10
@@ -96,7 +113,6 @@ All notable changes to `orchid-files` will be documented in this file.
 - Attachmentable Migration
 - Configuration file
 - Entities and Permissions
-
 
 ---
 

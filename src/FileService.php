@@ -3,7 +3,6 @@
 namespace Khamsolt\Orchid\Files;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Khamsolt\Orchid\Files\Contracts\Attachable;
 use Khamsolt\Orchid\Files\Contracts\Updatable;
@@ -14,23 +13,18 @@ use League\Flysystem\FilesystemException;
 use Orchid\Attachment\File;
 use Throwable;
 
-class FileService implements Updatable, Attachable, Uploadable
+final class FileService implements Updatable, Attachable, Uploadable
 {
     public function sync(string $modelType, int $modelId, array $ids, ?string $group = null): void
     {
         $query = Attachmentable::query()
             ->where('attachmentable_type', '=', $modelType)
             ->where('attachmentable_id', '=', $modelId)
-            ->when(
-                ! empty($group),
-                fn (Builder $builder) => $builder->where('group', '=', $group)
-            );
+            ->when(!empty($group), fn(Builder $builder) => $builder->where('group', '=', $group));
 
-        $searchDuplicateQuery = $query->clone()->whereIn('attachment_id', $ids);
-
-        $duplicates = $searchDuplicateQuery->get();
-
-        assert($duplicates instanceof Collection);
+        $duplicates = $query->clone()
+            ->whereIn('attachment_id', $ids)
+            ->get();
 
         $attachedIds = $ids;
 
@@ -40,46 +34,13 @@ class FileService implements Updatable, Attachable, Uploadable
             $attachedIds = $duplicates->pluck('attachment_id')->diff($ids);
         }
 
-        $this->attachMany((array)$attachedIds, $modelType, $modelId, $group);
-    }
+        if (count($attachedIds) === 0) {
+            $this->detachAll($modelType, $modelId, $group);
 
-    public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool
-    {
-        $data = array_map(static fn (int $attachmentId) => [
-            'attachmentable_type' => $type,
-            'attachmentable_id' => $id,
-            'attachment_id' => $attachmentId,
-            'group' => $group,
-        ], $attachments);
+            return;
+        }
 
-        $data = array_filter($data);
-
-        return Attachmentable::query()->insert($data);
-    }
-
-    public function update(int $id, array $data): bool
-    {
-        $result = Attachment::query()
-            ->where('id', '=', $id)
-            ->update($data);
-
-        return (bool)$result;
-    }
-
-    public function attach(int $attachmentId, string $type, int $id, ?string $group = null): int
-    {
-        $data = [
-            'attachmentable_type' => $type,
-            'attachmentable_id' => $id,
-            'attachment_id' => $attachmentId,
-            'group' => $group,
-        ];
-
-        $model = new Attachmentable();
-
-        $model->newQuery()->updateOrInsert($data);
-
-        return 0;
+        $this->attachMany((array) $attachedIds, $modelType, $modelId, $group);
     }
 
     public function detachAll(string $type, int $id, ?string $group = null): int
@@ -108,6 +69,45 @@ class FileService implements Updatable, Attachable, Uploadable
         return $result;
     }
 
+    public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool
+    {
+        $data = array_map(static fn(int $attachmentId) => [
+            'attachmentable_type' => $type,
+            'attachmentable_id' => $id,
+            'attachment_id' => $attachmentId,
+            'group' => $group,
+        ], $attachments);
+
+        $data = array_filter($data);
+
+        return Attachmentable::query()->insert($data);
+    }
+
+    public function update(int $id, array $data): bool
+    {
+        $result = Attachment::query()
+            ->where('id', '=', $id)
+            ->update($data);
+
+        return (bool) $result;
+    }
+
+    public function attach(int $attachmentId, string $type, int $id, ?string $group = null): int
+    {
+        $data = [
+            'attachmentable_type' => $type,
+            'attachmentable_id' => $id,
+            'attachment_id' => $attachmentId,
+            'group' => $group,
+        ];
+
+        $model = new Attachmentable();
+
+        $model->newQuery()->updateOrInsert($data);
+
+        return 0;
+    }
+
     /**
      * @throws FilesystemException
      * @throws Throwable
@@ -124,7 +124,7 @@ class FileService implements Updatable, Attachable, Uploadable
             $attachment->setAttribute('user_id', $userId);
         }
 
-        if (! empty($data)) {
+        if (!empty($data)) {
             $attachment->fill($data);
 
             $attachment->saveOrFail();

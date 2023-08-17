@@ -4,7 +4,7 @@ namespace Khamsolt\Orchid\Files\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UploadRequest extends FormRequest
+final class UploadRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,7 +14,7 @@ class UploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attachment.source' => ['required', 'file', 'max:' . config('orchid-files.size')],
+            'attachment.source' => ['required', 'file', 'max:'.config('orchid-files.size')],
             'attachment.user_id' => ['required', 'numeric', 'exists:users,id'],
             'attachment.original_name' => ['nullable', 'string', 'max:255'],
             'attachment.sort' => ['numeric', 'nullable'],
