@@ -1,7 +1,11 @@
-<?php return [
-    'table'           => 'attachments',
+<?php use Khamsolt\Orchid\Files\Enums\Action;
 
-    'relation_table'  => 'attachmentable',
+return [
+    'name' => 'Files',
+
+    'table' => 'attachments',
+
+    'relation_table' => 'attachmentable',
 
     'size' => 25,
 
@@ -16,7 +20,9 @@
             'nickname',
         ],
 
-        'displayed' => 'email'
+        'displayed' => 'email',
+
+        'presenter' => \App\Orchid\Presenters\UserPresenter::class
     ],
 
     'storage' => [
@@ -26,40 +32,63 @@
     ],
 
     'routes' => [
-        'list' => 'platform.files.list',
-        'view' => 'platform.files.edit',
-        'edit' => 'platform.files.view',
-        'upload' => 'platform.files.upload',
+        Action::LIST->value => 'platform.files.list',
+        Action::VIEW->value => 'platform.files.view',
+        Action::UPDATE->value => 'platform.files.update',
+        Action::UPLOAD->value => 'platform.files.upload',
 
-        'main' => 'platform.main'
+        Action::MAIN->value => 'platform.main'
     ],
 
     'permissions' => [
         'titles' => [
-            'group'  => 'File Manager',
-            'list'   => 'Accessing the file list',
-            'view'   => 'Access to view file',
-            'assign' => 'Accessing a file assignment',
-            'attach' => 'Access to file attachments',
-            'update' => 'Access to file updates',
-            'upload' => 'Access to file uploads',
+            /** @deprecated */
+            Action::GROUP->value => 'File Manager',
+
+            Action::LIST->value => 'List',
+            Action::VIEW->value => 'View',
+            Action::ASSIGN->value => 'Assign',
+            Action::ATTACH->value => 'Attach',
+            Action::UPDATE->value => 'Update',
+            Action::UPLOAD->value => 'Upload',
+            Action::DELETE->value => 'Delete',
         ],
 
         'keys' => [
-            'list'   => ['platform.files.list'],
-            'view'   => ['platform.files.view'],
-            'assign' => ['platform.files.assign'],
-            'attach' => ['platform.files.attach'],
-            'update' => ['platform.files.update'],
-            'upload' => ['platform.files.upload'],
-        ]
+            Action::LIST->value => 'platform.files.list',
+            Action::VIEW->value => 'platform.files.view',
+            Action::ASSIGN->value => 'platform.files.assign',
+            Action::ATTACH->value => 'platform.files.attach',
+            Action::UPDATE->value => 'platform.files.update',
+            Action::UPLOAD->value => 'platform.files.upload',
+            Action::DELETE->value => 'platform.files.delete',
+        ],
+
+        'accesses' => [
+            Action::LIST->value => [],
+            Action::VIEW->value => [],
+            Action::ASSIGN->value => [],
+            Action::ATTACH->value => [],
+            Action::UPDATE->value => [],
+            Action::UPLOAD->value => [],
+            Action::DELETE->value => [],
+        ],
     ],
 
+    /**
+     * @deprecated
+     */
     'presenters' => [
         'user' => \App\Orchid\Presenters\UserPresenter::class
     ],
 
     'bind' => [
+        'configuration' => \Khamsolt\Orchid\Files\FileConfigurator::class,
+
+        'authorization' => \Khamsolt\Orchid\Files\FileAuthorize::class,
+
+        'translation' => \Khamsolt\Orchid\Files\FileTranslator::class,
+
         'attach' => \Khamsolt\Orchid\Files\FileService::class,
 
         'update' => \Khamsolt\Orchid\Files\FileService::class,

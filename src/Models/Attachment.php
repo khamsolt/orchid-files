@@ -3,6 +3,9 @@
 namespace Khamsolt\Orchid\Files\Models;
 
 use Illuminate\Support\Carbon;
+use Orchid\Filters\Types\Like;
+use Orchid\Filters\Types\Where;
+use Orchid\Filters\Types\WhereDateStartEnd;
 use Orchid\Metrics\Chartable;
 use Orchid\Screen\AsSource;
 
@@ -33,18 +36,18 @@ class Attachment extends \Orchid\Attachment\Models\Attachment
     public const GROUP_THUMBNAIL = 'thumbnail';
 
     protected $allowedFilters = [
-        'id',
-        'name',
-        'original_name',
-        'mime',
-        'extension',
-        'disk',
-        'size',
-        'sort',
-        'group',
-        'hash',
-        'created_at',
-        'updated_at',
+        'id' => Where::class,
+        'name' => Like::class,
+        'original_name' => Like::class,
+        'mime' => Where::class,
+        'extension' => Where::class,
+        'disk' => Where::class,
+        'size' => Where::class,
+        'sort' => Where::class,
+        'group' => Like::class,
+        'hash' => Like::class,
+        'created_at' => WhereDateStartEnd::class,
+        'updated_at' => WhereDateStartEnd::class,
     ];
 
     protected $allowedSorts = [
@@ -64,12 +67,12 @@ class Attachment extends \Orchid\Attachment\Models\Attachment
 
     public function sizeToKb(): float
     {
-        return ($size = (int)$this->size) > 0 ? round($size / 1024, 2) : 0;
+        return ($size = (int) $this->size) > 0 ? round($size / 1024, 2) : 0;
     }
 
     public function thumbnail(): string
     {
-        $default = 'https://via.placeholder.com/150?text=.' . strtoupper($this->extension);
+        $default = 'https://via.placeholder.com/150?text=.'.strtoupper($this->extension);
 
         return $this->isImage() ? $this->url() ?? $default : $default;
     }

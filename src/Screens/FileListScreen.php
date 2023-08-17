@@ -2,13 +2,16 @@
 
 namespace Khamsolt\Orchid\Files\Screens;
 
-use Illuminate\Contracts\Config\Repository;
-use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
-use Khamsolt\Orchid\Files\Contracts\Permissions;
+use Illuminate\Validation\Rule;
+use Khamsolt\Orchid\Files\Contracts\Authorization;
+use Khamsolt\Orchid\Files\Contracts\Configuration;
 use Khamsolt\Orchid\Files\Contracts\Repository as FileRepository;
+use Khamsolt\Orchid\Files\Contracts\Translation;
+use Khamsolt\Orchid\Files\Enums\Action;
+use Khamsolt\Orchid\Files\Enums\Mode;
 use Khamsolt\Orchid\Files\Enums\Type;
 use Khamsolt\Orchid\Files\Http\Requests\SelectRequest;
 use Khamsolt\Orchid\Files\Layouts\FileListLayout;
@@ -24,24 +27,24 @@ use Orchid\Screen\LayoutFactory;
 use Orchid\Screen\Screen;
 use Orchid\Support\Color;
 
-class FileListScreen extends Screen
+final class FileListScreen extends Screen
 {
-    public User $user;
+    public User|null $user = null;
 
-    public Type|null $type;
+    public Type|null $type = null;
 
-    public string|null $mode;
+    public string|null $mode = null;
 
-    public string|null $redirect;
+    public string|null $redirect = null;
 
     public function __construct(
-        private readonly Request        $request,
-        private readonly Repository     $config,
-        private readonly Permissions    $permissible,
+        private readonly Request $request,
+        private readonly Configuration $configuration,
+        private readonly Authorization $authorization,
         private readonly FileRepository $fileRepository,
-        private readonly Redirector     $redirector,
-        private readonly Translator     $translator,
-        private readonly Toast          $toast
+        private readonly Redirector $redirector,
+        private readonly Translation $translator,
+        private readonly Toast $toast
     ) {
     }
 
@@ -57,24 +60,19 @@ class FileListScreen extends Screen
 
     public function permission(): ?iterable
     {
-        return $this->permissible->accessFileList();
+        return $this->authorization->authorize(Action::LIST);
     }
 
     public function commandBar(): iterable
     {
-        /** @var string $uploadRoute */
-        $uploadRoute = $this->config->get('orchid-files.routes.upload', 'platform.files.upload');
-
         return [
             Link::make('Upload File')
-                ->type(new Color('default'))
-                ->icon('add')
-                ->route($uploadRoute)
+                ->icon('bs.file-plus-fill')
+                ->route($this->configuration->route(Action::UPLOAD))
                 ->canSee(! $this->redirect && ! $this->mode),
 
             Button::make('Attach')
-                ->type(new Color('primary'))
-                ->icon('check')
+                ->icon('bs.file-check-fill')
                 ->method('attaching', [
                     'url' => $this->redirect,
                 ])
@@ -84,27 +82,32 @@ class FileListScreen extends Screen
 
     public function layout(): iterable
     {
-        $type = $this->request->get('type');
-
         $funcNum = $this->request->get('CKEditorFuncNum');
 
         return [
             LayoutFactory::rows([
-                Upload::make('upload.files')->title('Quick Loading'),
+                Upload::make('upload.files')
+                    ->title('Quick Loading'),
 
                 Cropper::make('upload.image')
                     ->staticBackdrop()
                     ->title('Image'),
-            ])->canSee($this->user->hasAnyAccess($this->permissible->accessFileUploads())),
 
-            LayoutFactory::block(new FileListLayout($this->redirector->getUrlGenerator()))
+            ])->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::LIST))),
+
+            LayoutFactory::block(new FileListLayout(
+                $this->user,
+                $this->redirector->getUrlGenerator(),
+                $this->authorization,
+                $this->configuration
+            ))
                 ->vertical()
                 ->commands([
                     CKEditorButtonHandler::make('Select')
-                        ->canSee(! empty($type))
+                        ->canSee((bool) $this->type)
                         ->set('data-ckeditor-func-num', $funcNum)
                         ->icon('loop')
-                        ->type(new Color('primary')),
+                        ->type(Color::PRIMARY),
                 ]),
         ];
     }
@@ -126,35 +129,29 @@ class FileListScreen extends Screen
         return $this->redirector->secure("$url?$query");
     }
 
-    public function delete(int $attachmentId): void
+    public function delete(Attachment $attachment): void
     {
-        $attachment = Attachment::query()->where('id', '=', $attachmentId)->firstOrFail();
-
         $attachment->delete();
 
-        /** @var string $successMessage */
-        $successMessage = $this->translator->get('Media file deleted successfully');
-
-        $this->toast->success($successMessage);
+        $this->toast->success($this->translator->get('Media file deleted successfully'));
     }
 
     public function query(Request $request): iterable
     {
+        $data = $request->validate([
+            'mode' => ['nullable', 'string', Rule::enum(Mode::class)],
+            'redirect' => ['nullable', 'string', 'url'],
+            'type' => ['nullable', 'string', Rule::enum(Type::class)],
+        ]);
+
         $user = $request->user();
 
-        $type = $this->resolveType($request);
-
-        $files = $this->fileRepository->paginate($type);
+        $files = $this->fileRepository->paginate($data['type'] ?? null);
 
         return [
             'files' => $files,
-            'type' => $type,
             'user' => $user,
-            'config' => $this->config,
-            'permissible' => $this->permissible,
-            'mode' => $request->get('mode'),
-            'redirect' => $request->get('redirect'),
-            'router' => $this->redirector->getUrlGenerator(),
+            ...$data,
         ];
     }
 

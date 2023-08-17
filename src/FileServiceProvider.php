@@ -2,13 +2,17 @@
 
 namespace Khamsolt\Orchid\Files;
 
+use Illuminate\Contracts\Config\Repository as Config;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Khamsolt\Orchid\Files\Commands\FilesInstallCommand;
 use Khamsolt\Orchid\Files\Contracts\Attachable;
 use Khamsolt\Orchid\Files\Contracts\Attachmentable;
-use Khamsolt\Orchid\Files\Contracts\Permissions;
+use Khamsolt\Orchid\Files\Contracts\Authorization;
+use Khamsolt\Orchid\Files\Contracts\Configuration;
 use Khamsolt\Orchid\Files\Contracts\Repository;
+use Khamsolt\Orchid\Files\Contracts\Translation;
 use Khamsolt\Orchid\Files\Contracts\Updatable;
 use Khamsolt\Orchid\Files\Contracts\Uploadable;
 use Khamsolt\Orchid\Files\Providers\AuthServiceProvider;
@@ -17,37 +21,55 @@ use Khamsolt\Orchid\Files\View\Components\Thumbnail;
 use Orchid\Attachment\Models\Attachment;
 use Orchid\Platform\Dashboard;
 
-class FileServiceProvider extends ServiceProvider
+final class FileServiceProvider extends ServiceProvider
 {
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     */
     public function register(): void
     {
-        $this->mergeConfigFrom(dirname(__DIR__) . '/config/orchid-files.php', 'orchid-files');
+        $this->mergeConfigFrom(dirname(__DIR__).'/config/orchid-files.php', 'orchid-files');
 
-        $this->bindDependencies()->registerProviders();
+        $this->bindDependencies();
+
+        $this->registerProviders();
     }
 
-    public function boot(): void
+    /**
+     * @throws BindingResolutionException
+     */
+    private function bindDependencies(): void
     {
-        Dashboard::useModel(Attachment::class, Models\Attachment::class);
+        /** @var Config $config */
+        $config = $this->app->make('config');
 
-        $this->registerViews();
+        /** @var array<string, class-string> $settings */
+        $settings = $config->get('orchid-files.bind');
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                FilesInstallCommand::class,
-            ]);
+        $this->app->bind(Configuration::class, $settings['configuration'] ?? FileConfigurator::class);
 
-            $this->publishes([
-                dirname(__DIR__) . '/database/migrations' => database_path('migrations'),
-            ], 'migrations');
+        $this->app->bind(Translation::class, $settings['translation'] ?? FileTranslator::class);
 
-            $this->publishes([
-                dirname(__DIR__) . '/config/orchid-files.php' => config_path('orchid-files.php'),
-            ], 'config');
+        $this->app->bind(Authorization::class, $settings['authorization'] ?? FileAuthorize::class);
 
-            $this->publishes([
-                dirname(__DIR__) . '/resources/views' => resource_path('views/vendor/orchid_files'),
-            ], 'views');
+        $this->app->bind(Repository::class, $settings['search'] ?? FileRepository::class);
+
+        $this->app->bind(Updatable::class, $settings['update'] ?? FileService::class);
+
+        $this->app->bind(Uploadable::class, $settings['upload'] ?? FileService::class);
+
+        $this->app->bind(Attachable::class, $settings['attach'] ?? FileService::class);
+
+        $this->app->bind(Attachmentable::class, $settings['attachmentable'] ?? FileAttachment::class);
+
+        $this->app->bind('orchid-files', FileSettings::class);
+    }
+
+    private function registerProviders(): void
+    {
+        foreach ($this->provides() as $provide) {
+            $this->app->register($provide);
         }
     }
 
@@ -58,67 +80,40 @@ class FileServiceProvider extends ServiceProvider
         ];
     }
 
-    protected function registerProviders(): self
+    public function boot(Dashboard $dashboard): void
     {
-        foreach ($this->provides() as $provide) {
-            $this->app->register($provide);
+        $dashboard::useModel(Attachment::class, Models\Attachment::class);
+
+        $this->registerViews();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                FilesInstallCommand::class,
+            ]);
+
+            $this->publishes([
+                dirname(__DIR__).'/database/migrations' => database_path('migrations'),
+            ], 'migrations');
+
+            $this->publishes([
+                dirname(__DIR__).'/config/orchid-files.php' => config_path('orchid-files.php'),
+            ], 'config');
+
+            $this->publishes([
+                dirname(__DIR__).'/resources/views' => resource_path('views/vendor/orchid_files'),
+            ], 'views');
         }
-
-        return $this;
     }
 
-    protected function bindDependencies(): self
-    {
-        $config = $this->app->make('config');
-
-        assert($config instanceof \Illuminate\Contracts\Config\Repository);
-
-        /** @var array<string, mixed> $settings */
-        $settings = $config->get('orchid-files.bind');
-
-        $this->app->bind(Permissions::class, FilePermission::class);
-
-        /** @var class-string $searchClass */
-        $searchClass = $settings['search'] ?? FileRepository::class;
-
-        $this->app->bind(Repository::class, $searchClass);
-
-        /** @var class-string $updateClass */
-        $updateClass = $settings['update'] ?? FileService::class;
-
-        $this->app->bind(Updatable::class, $updateClass);
-
-        /** @var class-string $uploadClass */
-        $uploadClass = $settings['upload'] ?? FileService::class;
-
-        $this->app->bind(Uploadable::class, $uploadClass);
-
-        /** @var class-string $attachmentClass */
-        $attachmentClass = $settings['attach'] ?? FileService::class;
-
-        $this->app->bind(Attachable::class, $attachmentClass);
-
-        /** @var class-string $attachmentableClass */
-        $attachmentableClass = $settings['attachmentable'] ?? FileAttachment::class;
-
-        $this->app->bind(Attachmentable::class, $attachmentableClass);
-
-        $this->app->bind('orchid-files', FileSettings::class);
-
-        return $this;
-    }
-
-    protected function registerViews(): self
+    private function registerViews(): void
     {
         Blade::componentNamespace('Khamsolt\\Orchid\\Files\\View\\Components', 'orchid-files');
 
-        $this->loadViewsFrom(dirname(__DIR__) . '/resources/views', 'orchid-files');
+        $this->loadViewsFrom(dirname(__DIR__).'/resources/views', 'orchid-files');
 
         $this->loadViewComponentsAs('orchid-files', [
             Preview::class,
             Thumbnail::class,
         ]);
-
-        return $this;
     }
 }

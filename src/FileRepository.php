@@ -11,7 +11,7 @@ use Khamsolt\Orchid\Files\Models\Attachment;
 class FileRepository implements Repository
 {
     /**
-     * @param Type|null $type
+     * @param  Type|null  $type
      * @return LengthAwarePaginator<Attachment>
      */
     public function paginate(Type $type = null): LengthAwarePaginator
@@ -21,7 +21,10 @@ class FileRepository implements Repository
             ->defaultSort('created_at', 'desc');
 
         if ($type !== null) {
-            $builder->when($type === Type::IMAGES, fn ($query) => $query->whereIn('extension', Attachment::IMAGE_EXTENSIONS));
+            $builder->when(
+                $type === Type::IMAGES,
+                fn ($query) => $query->whereIn('extension', Attachment::IMAGE_EXTENSIONS)
+            );
         }
 
         return $builder->paginate();
