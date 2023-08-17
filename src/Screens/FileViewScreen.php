@@ -118,7 +118,7 @@ final class FileViewScreen extends Screen
                 Sight::make('extension', $this->translator->get('Extension')),
 
                 Sight::make('size', $this->translator->get('Size'))
-                    ->render(fn(Attachment $attachment) => $attachment->sizeToKb().' Kb'),
+                    ->render(fn (Attachment $attachment) => $attachment->sizeToKb().' Kb'),
 
                 Sight::make('sort', $this->translator->get('Sort')),
                 Sight::make('path', $this->translator->get('Path')),
@@ -129,10 +129,10 @@ final class FileViewScreen extends Screen
                 Sight::make('group', $this->translator->get('Group')),
 
                 Sight::make('created_at', $this->translator->get('Created'))
-                    ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+                    ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
                 Sight::make('updated_at', $this->translator->get('Updated'))
-                    ->render(fn(Attachment $attachment) => $attachment->updated_at->toDateTimeString()),
+                    ->render(fn (Attachment $attachment) => $attachment->updated_at->toDateTimeString()),
             ]),
         ];
     }

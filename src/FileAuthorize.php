@@ -8,7 +8,6 @@ use Khamsolt\Orchid\Files\Contracts\Translation;
 use Khamsolt\Orchid\Files\Enums\Action;
 use Orchid\Platform\ItemPermission;
 
-
 final class FileAuthorize implements Authorization
 {
     public function __construct(
@@ -25,7 +24,7 @@ final class FileAuthorize implements Authorization
 
         return [
             $slug,
-            ...$accesses
+            ...$accesses,
         ];
     }
 

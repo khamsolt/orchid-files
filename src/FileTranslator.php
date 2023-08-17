@@ -21,7 +21,7 @@ final class FileTranslator implements Translation
         /** @var string $result */
         $result = $this->translator->get($text, $replace, $locale);
 
-        if (!is_string($result)) {
+        if (! is_string($result)) {
             throw new IncorrectTranslateKeyException($text);
         }
 

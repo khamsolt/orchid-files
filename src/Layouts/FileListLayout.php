@@ -52,7 +52,7 @@ class FileListLayout extends Table
             TD::make('original_name', 'Original Name')
                 ->sort()
                 ->filter()
-                ->render(fn(Attachment $attachment) => new Thumbnail(
+                ->render(fn (Attachment $attachment) => new Thumbnail(
                     $attachment,
                     $this->generator->route($this->configuration->route(Action::VIEW), $attachment->getKey())
                 )),
@@ -65,7 +65,7 @@ class FileListLayout extends Table
                         ->displayAppend('list_item')
                 )
                 ->render(
-                    fn(Attachment $attachment) => $attachment->getRelation('user')
+                    fn (Attachment $attachment) => $attachment->getRelation('user')
                         ? new Persona($this->filePresenter->resolveUserPresenter($attachment))
                         : null
                 ),
@@ -88,7 +88,7 @@ class FileListLayout extends Table
             TD::make('size', 'Size')
                 ->sort()
                 ->filter(TD::FILTER_NUMERIC)
-                ->render(fn(Attachment $attachment) => $attachment->sizeToKb().' Kb'),
+                ->render(fn (Attachment $attachment) => $attachment->sizeToKb().' Kb'),
 
             TD::make('sort', 'Sort')
                 ->sort()
@@ -128,19 +128,20 @@ class FileListLayout extends Table
             TD::make('created_at', 'Created')
                 ->sort()
                 ->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+                ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
             TD::make('updated_at', 'Updated')
                 ->sort()
                 ->defaultHidden()
                 ->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn(Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+                ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
 
             TD::make('Actions')
                 ->cantHide()
                 ->align(TD::ALIGN_CENTER)
                 ->width('100px')
-                ->render(fn(Attachment $attachment) => DropDown::make()
+                ->render(
+                    fn (Attachment $attachment) => DropDown::make()
                     ->icon('bs.list')
                     ->list([
                         Link::make()
@@ -190,7 +191,7 @@ class FileListLayout extends Table
     protected function checkbox(): Cell
     {
         return TD::make()
-            ->render(fn(Attachment $attachment): CheckBox => CheckBox::make('attachments[]')
+            ->render(fn (Attachment $attachment): CheckBox => CheckBox::make('attachments[]')
                 ->value($attachment->getKey())
                 ->checked(false));
     }
@@ -198,7 +199,7 @@ class FileListLayout extends Table
     protected function radio(): Cell
     {
         return TD::make()
-            ->render(fn(Attachment $attachment): Radio => Radio::make('attachments')
+            ->render(fn (Attachment $attachment): Radio => Radio::make('attachments')
                 ->set('data-url', $attachment->url())
                 ->value($attachment->getKey())
                 ->checked(false));

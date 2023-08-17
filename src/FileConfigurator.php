@@ -21,7 +21,7 @@ final class FileConfigurator implements Configuration
     ) {
         $configs = $this->repository->get('orchid-files');
 
-        if (!is_array($configs)) {
+        if (! is_array($configs)) {
             throw new FileException('Incorrect configurations from the Orchid Files package');
         }
 
@@ -43,7 +43,7 @@ final class FileConfigurator implements Configuration
         /** @var string $result */
         $result = Arr::get($this->configs, $key);
 
-        if (!is_string($result)) {
+        if (! is_string($result)) {
             $this->error($key);
         }
 
@@ -77,7 +77,7 @@ final class FileConfigurator implements Configuration
     {
         $result = Arr::get($this->configs, $key);
 
-        if (!is_numeric($result)) {
+        if (! is_numeric($result)) {
             $this->error($key);
         }
 
@@ -103,7 +103,7 @@ final class FileConfigurator implements Configuration
     {
         $result = Arr::get($this->configs, $key);
 
-        if (!is_array($result)) {
+        if (! is_array($result)) {
             $this->error($key);
         }
 

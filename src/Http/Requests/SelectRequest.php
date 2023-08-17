@@ -41,10 +41,10 @@ final class SelectRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        !is_array($this->attachments) && $this->merge([
+        ! is_array($this->attachments) && $this->merge([
             'attachments' => [
-                $this->attachments
-            ]
+                $this->attachments,
+            ],
         ]);
     }
 }

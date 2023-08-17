@@ -20,7 +20,7 @@ class FileEditLayout extends Rows
     {
         return [
             Input::make('attachment.source')
-                ->required(!$this->attachment->exists)
+                ->required(! $this->attachment->exists)
                 ->title('File')
                 ->type('file')
                 ->disabled($this->attachment->exists),

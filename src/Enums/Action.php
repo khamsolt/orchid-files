@@ -13,7 +13,7 @@ enum Action: string
     case ATTACH = 'attach';
     case ASSIGN = 'assign';
     case DELETE = 'delete';
-    
+
     case MAIN = 'main';
     case GROUP = 'group';
 
@@ -31,7 +31,7 @@ enum Action: string
             self::UPLOAD->value => 'Upload',
             self::UPDATE->value => 'Update',
             self::ATTACH->value => 'Attach',
-            self::ASSIGN->value => 'Assign'
+            self::ASSIGN->value => 'Assign',
         ];
     }
 

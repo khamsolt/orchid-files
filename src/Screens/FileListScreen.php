@@ -69,7 +69,7 @@ final class FileListScreen extends Screen
             Link::make('Upload File')
                 ->icon('bs.file-plus-fill')
                 ->route($this->configuration->route(Action::UPLOAD))
-                ->canSee(!$this->redirect && !$this->mode),
+                ->canSee(! $this->redirect && ! $this->mode),
 
             Button::make('Attach')
                 ->icon('bs.file-check-fill')
@@ -91,7 +91,7 @@ final class FileListScreen extends Screen
 
                 Cropper::make('upload.image')
                     ->staticBackdrop()
-                    ->title('Image')
+                    ->title('Image'),
 
             ])->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::LIST))),
 
@@ -151,7 +151,7 @@ final class FileListScreen extends Screen
         return [
             'files' => $files,
             'user' => $user,
-            ... $data
+            ...$data,
         ];
     }
 
@@ -162,5 +162,4 @@ final class FileListScreen extends Screen
 
         return is_string($type) ? Type::tryFrom($type) : null;
     }
-
 }
