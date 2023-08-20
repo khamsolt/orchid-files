@@ -22,12 +22,14 @@ use Orchid\Screen\Actions\Button;
 use Orchid\Screen\LayoutFactory;
 use Orchid\Screen\Screen;
 use Orchid\Support\Color;
+use Throwable;
 
-final class FileEditScreen extends Screen
+class FileEditScreen extends Screen
 {
     public ?Attachment $attachment = null;
 
     public ?bool $exists = true;
+
     public ?bool $isImage = false;
 
     public function __construct(
@@ -48,6 +50,7 @@ final class FileEditScreen extends Screen
 
         return [
             'attachment' => $attachment,
+            'exists' => $attachment->exists,
             'config' => $this->config,
             'id' => $attachment->getKey(),
             'alt' => $attachment->getAttribute('alt') ?? $attachment->getAttribute('original_name'),
@@ -58,7 +61,10 @@ final class FileEditScreen extends Screen
 
     public function permission(): ?iterable
     {
-        return $this->permissible->authorize(Action::EDIT);
+        return [
+            ...$this->permissible->authorize(Action::EDIT),
+            ...$this->permissible->authorize(Action::UPLOAD),
+        ];
     }
 
     public function commandBar(): iterable
@@ -131,5 +137,17 @@ final class FileEditScreen extends Screen
         $this->toast->success($this->translator->get('New File successfully added'));
 
         return $this->redirector->route($this->configuration->route(Action::VIEW), $attachment->id);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function delete(Attachment $attachment): RedirectResponse
+    {
+        $attachment->deleteOrFail();
+
+        $this->toast->success($this->translator->get('Media file deleted successfully'));
+
+        return $this->redirector->route($this->configuration->route(Action::LIST));
     }
 }

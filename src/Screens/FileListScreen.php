@@ -27,15 +27,15 @@ use Orchid\Screen\LayoutFactory;
 use Orchid\Screen\Screen;
 use Orchid\Support\Color;
 
-final class FileListScreen extends Screen
+class FileListScreen extends Screen
 {
-    public User|null $user = null;
+    public ?User $user = null;
 
-    public Type|null $type = null;
+    public ?Type $type = null;
 
-    public string|null $mode = null;
+    public ?string $mode = null;
 
-    public string|null $redirect = null;
+    public ?string $redirect = null;
 
     public function __construct(
         private readonly Request $request,

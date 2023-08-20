@@ -15,7 +15,7 @@ use Throwable;
 
 final class FileService implements Updatable, Attachable, Uploadable
 {
-    public function sync(string $modelType, int $modelId, array $ids, ?string $group = null): void
+    public function sync(string $modelType, int $modelId, array $ids, string $group = null): void
     {
         $query = Attachmentable::query()
             ->where('attachmentable_type', '=', $modelType)
@@ -43,12 +43,12 @@ final class FileService implements Updatable, Attachable, Uploadable
         $this->attachMany((array) $attachedIds, $modelType, $modelId, $group);
     }
 
-    public function detachAll(string $type, int $id, ?string $group = null): int
+    public function detachAll(string $type, int $id, string $group = null): int
     {
         return $this->detach(null, $type, $id, $group);
     }
 
-    public function detach(array|int|null $attachment, string $type, int $id, ?string $group = null): int
+    public function detach(array|int|null $attachment, string $type, int $id, string $group = null): int
     {
         $model = new Attachmentable();
 
@@ -69,7 +69,7 @@ final class FileService implements Updatable, Attachable, Uploadable
         return $result;
     }
 
-    public function attachMany(array $attachments, string $type, int $id, ?string $group = null): bool
+    public function attachMany(array $attachments, string $type, int $id, string $group = null): bool
     {
         $data = array_map(static fn (int $attachmentId) => [
             'attachmentable_type' => $type,
@@ -92,7 +92,7 @@ final class FileService implements Updatable, Attachable, Uploadable
         return (bool) $result;
     }
 
-    public function attach(int $attachmentId, string $type, int $id, ?string $group = null): int
+    public function attach(int $attachmentId, string $type, int $id, string $group = null): int
     {
         $data = [
             'attachmentable_type' => $type,

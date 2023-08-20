@@ -21,7 +21,7 @@ class FileAttachment implements Attachmentable
         return 'attachment_id';
     }
 
-    public function getGroup(): string|null
+    public function getGroup(): ?string
     {
         return 'group';
     }

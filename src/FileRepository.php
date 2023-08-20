@@ -11,7 +11,6 @@ use Khamsolt\Orchid\Files\Models\Attachment;
 class FileRepository implements Repository
 {
     /**
-     * @param  Type|null  $type
      * @return LengthAwarePaginator<Attachment>
      */
     public function paginate(Type $type = null): LengthAwarePaginator

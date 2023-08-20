@@ -10,7 +10,6 @@ use Khamsolt\Orchid\Files\Models\Attachment;
 interface Repository
 {
     /**
-     * @param Type|null $type
      * @return LengthAwarePaginator<Attachment>
      */
     public function paginate(Type $type = null): LengthAwarePaginator;
@@ -18,7 +17,6 @@ interface Repository
     public function find(int $id): Attachment;
 
     /**
-     * @param array $ids
      * @return Collection<int, Attachment>
      */
     public function findMore(array $ids): Collection;

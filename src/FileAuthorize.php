@@ -39,11 +39,10 @@ final class FileAuthorize implements Authorization
 
         $this->permissionAssign($item, Action::LIST);
         $this->permissionAssign($item, Action::VIEW);
-        $this->permissionAssign($item, Action::EDIT);
         $this->permissionAssign($item, Action::DELETE);
         $this->permissionAssign($item, Action::ATTACH);
         $this->permissionAssign($item, Action::ASSIGN);
-        $this->permissionAssign($item, Action::UPDATE);
+        $this->permissionAssign($item, Action::EDIT);
         $this->permissionAssign($item, Action::UPLOAD);
 
         return $item;

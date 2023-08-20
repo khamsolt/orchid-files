@@ -14,7 +14,6 @@ final class FileFeatures
 
     /**
      * @param  callable(Request):Action  $closure
-     * @return void
      */
     public static function setFileListScreenCommandsIntegration(callable $closure): void
     {
