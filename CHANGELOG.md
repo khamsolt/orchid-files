@@ -5,6 +5,16 @@ All notable changes to `orchid-files` will be documented in this file.
 
 ---
 
+## v3.0.2 - 2023-08-20
+
+### What's Changed
+
+#### Changed
+
+- Fixed link button form view screen
+
+---
+
 ## v3.0.1 - 2023-08-20
 
 ### What's Changed
@@ -30,7 +40,7 @@ All notable changes to `orchid-files` will be documented in this file.
 
 - New FileAuthorize class on FilePermission instead
 - New FileConfigurator class
-- 
+-
 
 #### Changed
 
@@ -40,7 +50,6 @@ All notable changes to `orchid-files` will be documented in this file.
 - Added accesses key to permissions config
 - Changed string keys in permissions and route keys on Action enumeration
 - New binding keys added to config
-
 
 ---
 
@@ -69,7 +78,6 @@ All notable changes to `orchid-files` will be documented in this file.
 - On the list layout changed the user field
 - On the view layout changed the user field
 
-
 ---
 
 ## 2.0.2 - 2022-12-10
@@ -77,7 +85,6 @@ All notable changes to `orchid-files` will be documented in this file.
 ### Fix
 
 - Deleted DTO Layers
-
 
 ---
 
@@ -94,7 +101,6 @@ All notable changes to `orchid-files` will be documented in this file.
 
 - TestCase class environment
 
-
 ---
 
 ## 2.0.0 - 2022-11-12
@@ -105,7 +111,6 @@ All notable changes to `orchid-files` will be documented in this file.
 - Added upload screen
 - Style and Phpstan fixes
 
-
 ---
 
 ## 1.0.3 - 2022-06-07
@@ -113,7 +118,6 @@ All notable changes to `orchid-files` will be documented in this file.
 ### Added
 
 - Fix File Attach
-
 
 ---
 
@@ -126,7 +130,6 @@ All notable changes to `orchid-files` will be documented in this file.
 - Initialize Command
 - New Config Keys
 
-
 ---
 
 ## 1.0.1 - 2022-04-10
@@ -138,7 +141,6 @@ All notable changes to `orchid-files` will be documented in this file.
 - Attachmentable Migration
 - Configuration file
 - Entities and Permissions
-
 
 ---
 
