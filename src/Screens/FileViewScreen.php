@@ -23,6 +23,8 @@ class FileViewScreen extends Screen
 
     public ?string $url = null;
 
+    public ?Attachment $attachment = null;
+
     public bool $isImage = false;
 
     public function __construct(
@@ -66,7 +68,10 @@ class FileViewScreen extends Screen
             Button::make('Delete')
                 ->confirm($this->translator->get('Once the media file is deleted, all of its resources and data will be permanently deleted. Before deleting your media file, please download any data or information that you wish to retain.'))
                 ->icon('bs.file-minus-fill')
-                ->route($this->configuration->route(Action::EDIT), ['method' => Action::DELETE->value]),
+                ->route($this->configuration->route(Action::EDIT), [
+                    $this->attachment,
+                    'method' => Action::DELETE->value,
+                ]),
 
             Link::make('Open')
                 ->target('blank')
@@ -112,7 +117,7 @@ class FileViewScreen extends Screen
                 Sight::make('extension', $this->translator->get('Extension')),
 
                 Sight::make('size', $this->translator->get('Size'))
-                    ->render(fn (Attachment $attachment) => $attachment->sizeToKb().' Kb'),
+                    ->render(fn(Attachment $attachment) => $attachment->sizeToKb().' Kb'),
 
                 Sight::make('sort', $this->translator->get('Sort')),
                 Sight::make('path', $this->translator->get('Path')),
@@ -124,12 +129,12 @@ class FileViewScreen extends Screen
 
                 Sight::make('created_at', $this->translator->get('Created'))
                     ->render(
-                        fn (Attachment $attachment) => $this->configuration->toDatetimeFormat($attachment->created_at)
+                        fn(Attachment $attachment) => $this->configuration->toDatetimeFormat($attachment->created_at)
                     ),
 
                 Sight::make('updated_at', $this->translator->get('Updated'))
                     ->render(
-                        fn (Attachment $attachment) => $this->configuration->toDatetimeFormat($attachment->updated_at)
+                        fn(Attachment $attachment) => $this->configuration->toDatetimeFormat($attachment->updated_at)
                     ),
             ]),
         ];
