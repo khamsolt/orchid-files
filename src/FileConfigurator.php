@@ -4,12 +4,13 @@ namespace Khamsolt\Orchid\Files;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Khamsolt\Orchid\Files\Contracts\Configuration;
 use Khamsolt\Orchid\Files\Enums\Action;
 use Khamsolt\Orchid\Files\Exceptions\FileException;
 use Khamsolt\Orchid\Files\Exceptions\IncorrectConfigException;
 
-final class FileConfigurator implements Configuration
+class FileConfigurator implements Configuration
 {
     private readonly array $configs;
 
@@ -28,14 +29,29 @@ final class FileConfigurator implements Configuration
         $this->configs = $configs;
     }
 
-    public function table(): string
+    /**
+     * @throws IncorrectConfigException
+     */
+    public function toDatetimeFormat(?Carbon $carbon, string $timezone = null, string $format = null): ?string
     {
-        return $this->findAsString('table');
+        if (! $carbon) {
+            return null;
+        }
+
+        if ($timezone || ($timezone = Arr::get($this->configs, 'datetime.timezone'))) {
+            $carbon->timezone($timezone);
+        }
+
+        if ($format !== null) {
+            return $carbon->format($format);
+        }
+
+        $format = $this->findAsString('datetime.format');
+
+        return $carbon->format($format);
     }
 
     /**
-     * @param  string  $key
-     * @return string
      * @throws IncorrectConfigException
      */
     private function findAsString(string $key): string
@@ -58,6 +74,11 @@ final class FileConfigurator implements Configuration
         throw new IncorrectConfigException($key);
     }
 
+    public function table(): string
+    {
+        return $this->findAsString('table');
+    }
+
     public function relationTable(): string
     {
         return $this->findAsString('relation_table');
@@ -69,8 +90,6 @@ final class FileConfigurator implements Configuration
     }
 
     /**
-     * @param  string  $key
-     * @return int|float
      * @throws IncorrectConfigException
      */
     private function findAsNumeric(string $key): int|float
@@ -95,8 +114,6 @@ final class FileConfigurator implements Configuration
     }
 
     /**
-     * @param  string  $key
-     * @return array
      * @throws IncorrectConfigException
      */
     private function findAsArray(string $key): array
@@ -139,8 +156,8 @@ final class FileConfigurator implements Configuration
     }
 
     /**
-     * @param  Action|null  $action
      * @return array<string, string>
+     *
      * @throws IncorrectConfigException
      */
     public function permissionTitles(Action $action = null): array
@@ -150,6 +167,7 @@ final class FileConfigurator implements Configuration
 
     /**
      * @return array<string, string>
+     *
      * @throws IncorrectConfigException
      */
     public function permissionKeys(): array
@@ -159,6 +177,8 @@ final class FileConfigurator implements Configuration
 
     /**
      * @return array<string, string[]>|string[]
+     *
+     * @throws IncorrectConfigException
      */
     public function permissionAccesses(Action $action = null): array
     {
@@ -170,8 +190,6 @@ final class FileConfigurator implements Configuration
     }
 
     /**
-     * @param  Action  $action
-     * @return string
      * @throws IncorrectConfigException
      */
     public function permissionKey(Action $action): string

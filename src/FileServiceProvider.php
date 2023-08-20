@@ -24,7 +24,6 @@ use Orchid\Platform\Dashboard;
 final class FileServiceProvider extends ServiceProvider
 {
     /**
-     * @return void
      * @throws BindingResolutionException
      */
     public function register(): void

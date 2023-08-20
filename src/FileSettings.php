@@ -14,10 +14,6 @@ final class FileSettings
     ) {
     }
 
-    /**
-     * @param  Attachment  $attachment
-     * @return Presenter|int|string
-     */
     public function resolveUserPresenter(Attachment $attachment): Presenter|int|string
     {
         $className = $this->configuration->user('presenter');

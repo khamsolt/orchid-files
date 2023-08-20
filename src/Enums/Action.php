@@ -5,11 +5,9 @@ namespace Khamsolt\Orchid\Files\Enums;
 enum Action: string
 {
     case LIST = 'list';
-    case EDIT = 'edit';
     case VIEW = 'view';
-    case CREATE = 'create';
+    case EDIT = 'edit';
     case UPLOAD = 'upload';
-    case UPDATE = 'update';
     case ATTACH = 'attach';
     case ASSIGN = 'assign';
     case DELETE = 'delete';
@@ -24,30 +22,23 @@ enum Action: string
     {
         return [
             self::LIST->value => 'List',
-            self::EDIT->value => 'Edit',
             self::VIEW->value => 'View',
-            self::CREATE->value => 'Create',
+            self::EDIT->value => 'Edit&Update',
             self::DELETE->value => 'Delete',
             self::UPLOAD->value => 'Upload',
-            self::UPDATE->value => 'Update',
             self::ATTACH->value => 'Attach',
             self::ASSIGN->value => 'Assign',
         ];
     }
 
-    /**
-     * @return string
-     */
     public function label(): string
     {
         return match ($this) {
             self::LIST => 'List',
-            self::EDIT => 'Edit',
             self::VIEW => 'View',
-            self::CREATE => 'Create',
+            self::EDIT => 'Edit&Update',
             self::DELETE => 'Delete',
             self::UPLOAD => 'Upload',
-            self::UPDATE => 'Update',
             self::ATTACH => 'Attach',
             self::ASSIGN => 'Assign',
         };

@@ -42,7 +42,7 @@ it('can upload file', function () {
 
     expect($attachment->size)->toEqual($file->getSize());
 
-    $path = storage_path('app/public/' . $attachment->physicalPath());
+    $path = storage_path('app/public/'.$attachment->physicalPath());
 
     $this->assertFileExists($path);
 });

@@ -128,13 +128,13 @@ class FileListLayout extends Table
             TD::make('created_at', 'Created')
                 ->sort()
                 ->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+                ->render(fn (Attachment $attachment) => $this->configuration->toDatetimeFormat($attachment->created_at)),
 
             TD::make('updated_at', 'Updated')
                 ->sort()
                 ->defaultHidden()
                 ->filter(TD::FILTER_DATE_RANGE)
-                ->render(fn (Attachment $attachment) => $attachment->created_at->toDateTimeString()),
+                ->render(fn (Attachment $attachment) => $this->configuration->toDatetimeFormat($attachment->created_at)),
 
             TD::make('Actions')
                 ->cantHide()
@@ -142,26 +142,26 @@ class FileListLayout extends Table
                 ->width('100px')
                 ->render(
                     fn (Attachment $attachment) => DropDown::make()
-                    ->icon('bs.list')
-                    ->list([
-                        Link::make()
-                            ->name('View')
-                            ->route($this->configuration->route(Action::VIEW), ['attachment' => $attachment->id])
-                            ->icon('bs.eye')
-                            ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::VIEW))),
+                        ->icon('bs.list')
+                        ->list([
+                            Link::make()
+                                ->name('View')
+                                ->route($this->configuration->route(Action::VIEW), ['attachment' => $attachment->id])
+                                ->icon('bs.eye')
+                                ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::VIEW))),
 
-                        Link::make()
-                            ->name('Edit')
-                            ->route($this->configuration->route(Action::EDIT), ['attachment' => $attachment->id])
-                            ->icon('bs.pencil')
-                            ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::EDIT))),
+                            Link::make()
+                                ->name('Edit')
+                                ->route($this->configuration->route(Action::EDIT), ['attachment' => $attachment->id])
+                                ->icon('bs.pencil')
+                                ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::EDIT))),
 
-                        Button::make('Delete')
-                            ->icon('bs.trash')
-                            ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::DELETE)))
-                            ->confirm('Attention, the file you selected will be deleted.')
-                            ->method('delete', ['attachment' => $attachment->id]),
-                    ])
+                            Button::make('Delete')
+                                ->icon('bs.trash')
+                                ->canSee($this->user->hasAnyAccess($this->authorization->authorize(Action::DELETE)))
+                                ->confirm('Attention, the file you selected will be deleted.')
+                                ->method('delete', ['attachment' => $attachment->id]),
+                        ])
                 ),
         ]);
     }

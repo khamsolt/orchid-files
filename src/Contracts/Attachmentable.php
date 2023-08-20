@@ -10,5 +10,5 @@ interface Attachmentable
 
     public function getAttachmentId(): int|string;
 
-    public function getGroup(): string|null;
+    public function getGroup(): ?string;
 }

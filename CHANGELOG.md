@@ -5,19 +5,22 @@ All notable changes to `orchid-files` will be documented in this file.
 
 ---
 
-##   - 2023-08-17
+## v3.0.1 - 2023-08-20
 
 ### What's Changed
 
-- Bump dependabot/fetch-metadata from 1.5.1 to 1.6.0 by @dependabot in https://github.com/khamsolt/orchid-files/pull/11
-- Features/upgrade/orchid 14 by @khamsolt in https://github.com/khamsolt/orchid-files/pull/12
-- Changelog fix by @khamsolt in https://github.com/khamsolt/orchid-files/pull/13
+#### Added
 
-### New Contributors
+- Added laravel pint package
+- Added method of time format conversion in configuration classes
 
-- @khamsolt made their first contribution in https://github.com/khamsolt/orchid-files/pull/12
+#### Changed
 
-**Full Changelog**: https://github.com/khamsolt/orchid-files/compare/v2.0.3...v3.0.0
+- The update key is renamed to edit
+- Code fix
+- Fixation dev packages
+
+---
 
 ## v3.0.0 - 2023-08-17
 

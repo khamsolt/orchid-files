@@ -25,7 +25,7 @@ class FileGenerator extends Generator
         $result = substr($hash, 0, $chars);
 
         for ($i = $chars; $i < $step * $chars; $i += $chars) {
-            $result .= '/' . substr($hash, $i, $chars);
+            $result .= '/'.substr($hash, $i, $chars);
         }
 
         return $this->path = "$folder/$result";

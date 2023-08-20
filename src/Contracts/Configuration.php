@@ -2,10 +2,13 @@
 
 namespace Khamsolt\Orchid\Files\Contracts;
 
+use Illuminate\Support\Carbon;
 use Khamsolt\Orchid\Files\Enums\Action;
 
 interface Configuration
 {
+    public function toDatetimeFormat(?Carbon $carbon, string $timezone = null, string $format = null): ?string;
+
     public function name(): string;
 
     public function table(): string;
